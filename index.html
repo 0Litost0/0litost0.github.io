@@ -1,0 +1,2683 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="google-site-verification" content="MfmuF7tQEQQyjyHtalSCQdzjS-Zfgv_lA7dKiTEb_Lw">
+
+  
+  
+  <link rel="stylesheet" href="/lib/needsharebutton/needsharebutton.css">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="TaWjOK7BMS">
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+<meta property="og:type" content="website">
+<meta property="og:title" content="力托斯特的博客">
+<meta property="og:url" content="https://0litost0.github.io/index.html">
+<meta property="og:site_name" content="力托斯特的博客">
+<meta property="og:description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+<meta property="og:locale" content="zh-CN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="力托斯特的博客">
+<meta name="twitter:description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://0litost0.github.io/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>力托斯特的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left 
+  page-home">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta custom-logo">
+    
+      <div class="site-meta-headline">
+        <a>
+          <img class="custom-logo-image" src="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg" alt="力托斯特的博客">
+        </a>
+      </div>
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">力托斯特的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">YOKO,YOKO！</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home menu-item-active">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+  
+  
+
+  
+
+  <a href="https://github.com/0Litost0" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewbox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a>
+
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+  <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://0litost0.github.io/2019/06/04/《人间失格》读书笔记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Litost_Cheng">
+      <meta itemprop="description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+      <meta itemprop="image" content="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="力托斯特的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/06/04/《人间失格》读书笔记/" class="post-title-link" itemprop="url">《人间失格》读书笔记</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-04 00:58:28" itemprop="dateCreated datePublished" datetime="2019-06-04T00:58:28+08:00">2019-06-04</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-08 19:02:23" itemprop="dateModified" datetime="2019-06-08T19:02:23+08:00">2019-06-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/读书笔记/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2019/06/04/《人间失格》读书笔记/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/06/04/《人间失格》读书笔记/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/2019/06/04/《人间失格》读书笔记/" class="leancloud_visitors" data-flag-title="《人间失格》读书笔记">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="Title">《人间失格》读书笔记</h1>  
+
+<h2 id="Brief">一、文章简介</h2>   
+
+<h3 id="AuthorBrief">1、作者简介</h3>   
+
+<p>&emsp;&emsp;太宰治（だざい おさむ，1909年6月19日—1948年6月13日），本名津岛修治（つしま しゅうじ），日本小说家，日本战后无赖派文学代表作家。主要作品有小说《逆行》、《斜阳》和《人间失格》等。<br><img src="https://gss1.bdstatic.com/9vo3dSag_xI4khGkpoWK1HF6hhy/baike/w%3D268%3Bg%3D0/sign=540cae43a486c9170803553ff10617f2/0df3d7ca7bcb0a4633d9c1826863f6246a60af96.jpg">   </p>
+ <h4 id="Experience">生平</h4>  
+
+<ul>
+<li>1909年，太宰治出生，津岛家是津轻地区首屈一指的地主富豪之家。太宰治出生之后，是津岛家那一辈里面的第六个男孩，上有五哥四姐，其中两个哥哥不幸夭折，只剩下文治、英治、圭治三人。  </li>
+<li>1916年，至市立金木普通小学就读，成绩杰出。1921年，以第一名的成绩从普通小学毕业，后至离家两公里远的明治高等小学就读。
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/06/04/《人间失格》读书笔记/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </li></ul></div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://0litost0.github.io/2019/06/04/《倾城之恋》读书笔记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Litost_Cheng">
+      <meta itemprop="description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+      <meta itemprop="image" content="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="力托斯特的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/06/04/《倾城之恋》读书笔记/" class="post-title-link" itemprop="url">《倾城之恋》读书笔记</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-04 00:34:48" itemprop="dateCreated datePublished" datetime="2019-06-04T00:34:48+08:00">2019-06-04</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-08 19:12:46" itemprop="dateModified" datetime="2019-06-08T19:12:46+08:00">2019-06-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/读书笔记/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2019/06/04/《倾城之恋》读书笔记/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/06/04/《倾城之恋》读书笔记/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/2019/06/04/《倾城之恋》读书笔记/" class="leancloud_visitors" data-flag-title="《倾城之恋》读书笔记">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="Title">《倾城之恋》读书笔记</h1>  
+
+<h2 id="Brief">一、文章简介</h2>   
+
+<h3 id="AuthorBrief">1、内容简介</h3>   
+
+<blockquote>
+<p>&emsp;&emsp;传奇里的倾国倾城的人大抵如此。<br>&emsp;&emsp;到处都是传奇，可不见得有这么圆满的收场。胡琴咿咿哑哑拉着，在万盏灯的夜晚，拉过来又拉过去，说不尽的苍凉的故事——不问也罢！<br>&emsp;&emsp;白流苏和范柳原这一对现实庸俗的男女，在战争的兵荒马乱之中被命运掷骰子般地掷到了一起，于“一刹那”体会到了“一对平凡的夫妻”之间的“一点真心”。<br>&emsp;&emsp;本书收录张爱玲于一九四三年至一九四四年创作的中短篇小说，包括《第一炉香》《第二炉香》《茉莉香片》《心经》等。<br>——<a href="https://book.douban.com/subject/10757940/" target="_blank" rel="noopener">《倾城之恋》豆瓣读书</a>   </p>
+</blockquote>
+<h2 id="Notes">二、摘录</h2>  
+
+<ol>
+<li><blockquote>
+<p>…<br>&emsp;&emsp;看久了方才看到那寂静的面庞上有一条筋在那里缓缓地波动，从腮部牵到太阳心——原来她在那里吃花生米呢，红而脆的花生米衣子，时时在嘴角掀腾着。<br>&emsp;&emsp;薇龙突然不愿意看下去了，掉转身子，开了衣橱，人靠在橱门上。衣橱里黑沉沉的，丁香末子香得使人发晕。那里面还是悠久的过去的空气，温雅、幽闲、无所谓时间。衣橱里可没有窗外那爽朗的清晨，那板板的绿草地，那怕人的寂静的脸，嘴角那花生衣子……那肮脏、复杂，不可理喻的现实。<br>…<br>——《第一炉香》(pp. 19-20). Kindle 版本. </p>
+</blockquote>
+</li>
+</ol>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/06/04/《倾城之恋》读书笔记/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://0litost0.github.io/2019/05/20/由Linux中listen()函数谈开去/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Litost_Cheng">
+      <meta itemprop="description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+      <meta itemprop="image" content="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="力托斯特的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/20/由Linux中listen()函数谈开去/" class="post-title-link" itemprop="url">由Linux中listen()函数谈开去</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-20 20:14:00" itemprop="dateCreated datePublished" datetime="2019-05-20T20:14:00+08:00">2019-05-20</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-08 12:51:10" itemprop="dateModified" datetime="2019-06-08T12:51:10+08:00">2019-06-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/" itemprop="url" rel="index"><span itemprop="name">软件编程</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/计算机网络/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2019/05/20/由Linux中listen()函数谈开去/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/05/20/由Linux中listen()函数谈开去/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/2019/05/20/由Linux中listen()函数谈开去/" class="leancloud_visitors" data-flag-title="由Linux中listen()函数谈开去">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ul>
+<li><a href="#Title">由Linux中listen()函数谈开去</a></li>
+<li><p><a href="#Brief">一、简介</a></p>
+<ul>
+<li><a href="#Introduction">1.前言</a> </li>
+<li><a href="#Origin">2.问题引入</a> </li>
+</ul>
+</li>
+<li><p><a href="#Principle"> 二、原理介绍</a></p>
+<ul>
+<li><a href="#Tcp_Three_wayhandshake">1. Tcp三次握手</a> </li>
+<li><a href="#Backlog_param">2. 关于backlog参数的理解</a> </li>
+</ul>
+</li>
+<li><p><a href="#Practice">三、实验与分析</a></p>
+<ul>
+<li><a href="#Enviroment">1. 实验环境</a> </li>
+<li><a href="#SourceCode">2. 例程介绍</a> </li>
+<li><a href="#Experiment">3. 分步实验</a> <ul>
+<li><a href="#Pending_on_socket">1. Server阻塞于socket()创建后</a> </li>
+<li><a href="#Pending_on_bind">2. Server阻塞于bind()创建后</a> </li>
+<li><a href="#Pending_on_listen">3. Server阻塞于listen()后</a> </li>
+<li><a href="#Pending_on_accept_once">4. Server阻塞于accept()一次后</a> </li>
+<li><a href="#Pending_on_accept_times">5. Server阻塞于accept()多次</a> </li>
+</ul>
+</li>
+<li><a href="#Summary">4. 实验结果分析</a> </li>
+</ul>
+</li>
+<li><a href="#ReferenceAndLinks">四、参考与链接</a></li>
+<li><a href="#Info">五、文档信息</a></li>
+</ul>
+<h1 id="Title">由Linux中listen()函数谈开去</h1>  
+
+
+<h2 id="Brief">一、简介</h2><br><h3 id="Introduction">1. 前言</h3><br><br>&emsp;&emsp;本篇博文主要谈一谈Linux系统中，在使用socket套接字建立Tcp连接时，关于listen()函数的backlog参数的理解，同时，借由该问题，并结合具体的实践，尝试厘清Tcp连接的建立过程。<br>&emsp;&emsp;本篇博客编写主要参考借鉴了以下两篇博文，并在其基础上，加入了个人的一些思考与探索。<br><br>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/05/20/由Linux中listen()函数谈开去/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://0litost0.github.io/2019/04/14/C或C-项目的makefile模板/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Litost_Cheng">
+      <meta itemprop="description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+      <meta itemprop="image" content="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="力托斯特的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/04/14/C或C-项目的makefile模板/" class="post-title-link" itemprop="url">C或C++项目的makefile模板</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-14 17:47:41" itemprop="dateCreated datePublished" datetime="2019-04-14T17:47:41+08:00">2019-04-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-08 12:51:10" itemprop="dateModified" datetime="2019-06-08T12:51:10+08:00">2019-06-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/" itemprop="url" rel="index"><span itemprop="name">软件编程</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/常用轮子/" itemprop="url" rel="index"><span itemprop="name">常用轮子</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2019/04/14/C或C-项目的makefile模板/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/04/14/C或C-项目的makefile模板/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/2019/04/14/C或C-项目的makefile模板/" class="leancloud_visitors" data-flag-title="C或C++项目的makefile模板">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ul>
+<li><a href="#MakeFileTemplate">MakeFileTemplate</a></li>
+<li><a href="#Brief">一、简介</a><ul>
+<li><a href="#Instruction">1.使用方法</a> </li>
+</ul>
+</li>
+<li><p><a href="#FAQ"> 二、FAQ</a></p>
+<ul>
+<li><a href="#FAQ_1">1. 是否需要在编译文件中，清晰展示依赖关系？</a> </li>
+<li><a href="#FAQ_2">2. 在makefile文件中添加宏定义的应用</a> </li>
+<li><a href="#FAQ_2">3. 关于模板的一些默认配置</a> </li>
+</ul>
+</li>
+<li><p><a href="#Reference&amp;Links">三、参考与链接</a></p>
+</li>
+<li><a href="#Info">四、文档信息</a></li>
+</ul>
+<h1 id="MakeFileTemplate">MakeFileTemplate</h1>  
+
+
+<h2 id="Brief">一、简介</h2>  
+
+
+<p>&emsp;&emsp;该仓库旨在提供一个针对于小型的<code>C/C++</code>项目的<code>makefile</code>模板。使用该模板，能够实现一键编译，无需再编写繁琐的<code>makefile</code>文件。<br>&emsp;&emsp;关于该makefile文件的工作过程中，在文件中都有一个详细的说明，可以参见该<a href="https://github.com/0Litost0/MakeFileTemplate/blob/master/makefile" target="_blank" rel="noopener">文件</a>。<br>&emsp;&emsp;Github项目地址: <a href="https://github.com/0Litost0/MakeFileTemplate" target="_blank" rel="noopener">MakeFileTemplate</a>  </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/04/14/C或C-项目的makefile模板/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://0litost0.github.io/2019/03/24/关于Linux中延时函数的分析与实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Litost_Cheng">
+      <meta itemprop="description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+      <meta itemprop="image" content="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="力托斯特的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/03/24/关于Linux中延时函数的分析与实践/" class="post-title-link" itemprop="url">关于Linux中延时函数的分析与实践</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-24 18:08:27" itemprop="dateCreated datePublished" datetime="2019-03-24T18:08:27+08:00">2019-03-24</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-08 12:51:10" itemprop="dateModified" datetime="2019-06-08T12:51:10+08:00">2019-06-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/" itemprop="url" rel="index"><span itemprop="name">软件编程</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/经验总结/" itemprop="url" rel="index"><span itemprop="name">经验总结</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2019/03/24/关于Linux中延时函数的分析与实践/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/03/24/关于Linux中延时函数的分析与实践/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/2019/03/24/关于Linux中延时函数的分析与实践/" class="leancloud_visitors" data-flag-title="关于Linux中延时函数的分析与实践">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ul>
+<li><a href="#Title">关于Linux中延时函数的分析与实践</a></li>
+<li><a href="#Title">一、简介</a></li>
+<li><a href="#二、Experiment">二、精度分析</a><ul>
+<li><a href="#1.Enviroment">1. 依赖环境</a></li>
+<li><a href="#2.Practical">2. 对象调用</a></li>
+</ul>
+</li>
+<li><a href="#三、Theory">三、实现原理</a></li>
+<li><a href="#四、ReferenceAndLink">四、参考与链接</a></li>
+<li><a href="#Info">五、文档信息</a></li>
+</ul>
+<p></p><h1 id="Title">关于Linux中延时函数的分析与实践</h1><p></p>
+<h2 id="一、Introduction">一、简介</h2>  
+
+<p>&emsp;&emsp;在实际的工程实践中，面对需要程序短暂休眠的情况，我们通常想到的可能是<a href="http://man7.org/linux/man-pages/man3/sleep.3.html" target="_blank" rel="noopener">sleep()</a>,<a href="http://man7.org/linux/man-pages/man3/usleep.3.html" target="_blank" rel="noopener">usleep()</a>,<a href="http://man7.org/linux/man-pages/man2/nanosleep.2.html" target="_blank" rel="noopener">nanosleep()</a>等函数。但是，在最近阅读代码的过程中，经常会看到使用<a href="http://man7.org/linux/man-pages/man2/select.2.html" target="_blank" rel="noopener">select()</a>达到延时的目的。本着追根求源（钻牛角尖）的原则，本篇博文，旨在通过具体的实验以及原理分析，从而找出在<code>linux</code>中，关于程序休眠的最佳实践。  </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/03/24/关于Linux中延时函数的分析与实践/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://0litost0.github.io/2019/01/05/Linux-临时线程应用CancelTempThreadAPI/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Litost_Cheng">
+      <meta itemprop="description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+      <meta itemprop="image" content="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="力托斯特的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/01/05/Linux-临时线程应用CancelTempThreadAPI/" class="post-title-link" itemprop="url">Linux_临时线程应用CancelTempThreadAPI</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-01-05 13:36:02" itemprop="dateCreated datePublished" datetime="2019-01-05T13:36:02+08:00">2019-01-05</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-08 12:51:10" itemprop="dateModified" datetime="2019-06-08T12:51:10+08:00">2019-06-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/" itemprop="url" rel="index"><span itemprop="name">软件编程</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/经验总结/" itemprop="url" rel="index"><span itemprop="name">经验总结</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2019/01/05/Linux-临时线程应用CancelTempThreadAPI/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/01/05/Linux-临时线程应用CancelTempThreadAPI/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/2019/01/05/Linux-临时线程应用CancelTempThreadAPI/" class="leancloud_visitors" data-flag-title="Linux_临时线程应用CancelTempThreadAPI">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ul>
+<li><a href="#CancelTempThreadAPI">Linux_临时线程应用CancelTempThreadAPI</a></li>
+<li><a href="#一、简介">一、简介</a></li>
+<li><a href="#二、快速上手">二、快速上手</a><ul>
+<li><a href="#1.依赖环境">1. 依赖环境</a></li>
+<li><a href="#2.对象调用">2.对象调用</a></li>
+<li><a href="#3.线程创建">3.线程创建</a></li>
+<li><a href="#4.线程取消">4.线程取消</a></li>
+</ul>
+</li>
+<li><a href="#三、实现原理">三、实现原理</a><ul>
+<li><a href="#1.执行流执行完毕，正常退出">1.执行流执行完毕，正常退出</a></li>
+<li><a href="#2.其它线程主动取消临时线程">2.其它线程主动取消临时线程</a></li>
+</ul>
+</li>
+<li><a href="#四、参考与链接">四、参考与链接</a></li>
+<li><a href="#Info">五、文档信息</a><br><h1 id="CancelTempThreadAPI">Linux_临时线程应用CancelTempThreadAPI</h1><br><h2 id="一、简介">一、简介</h2><br>&emsp;&emsp;Provide a set of API (Packaged into classes using C++) :could create and cancel the tempory thread。  </li>
+</ul>
+<p>&emsp;&emsp;<code>在实际工作过程中，有时需要我们对一些临时性的工作进行处理，传统的处理方式可能是：在一个工作线程中不断轮训相应时间标志，置位则执行，反之则取消。但是对于一些连贯性动作，或是在调用第三方接口时，可能无法适时终止相应执行流。为了解决以上问题，该仓库封装了一个C++类，通过调用相关对象，可以创建或是取消一个临时线程。</code><br>&emsp;&emsp;GitHUb项目地址:<a href="https://github.com/0Litost0/CancelTempThreadAPI" title="该仓库封装了一个C++类，通过调用相关对象，可以创建或是取消一个临时线程。" target="_blank" rel="noopener">CancelTempThreadAPI</a>  </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/01/05/Linux-临时线程应用CancelTempThreadAPI/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://0litost0.github.io/2019/01/05/符合-Doxygen-注释风格的-SourceInsight-宏/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Litost_Cheng">
+      <meta itemprop="description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+      <meta itemprop="image" content="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="力托斯特的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/01/05/符合-Doxygen-注释风格的-SourceInsight-宏/" class="post-title-link" itemprop="url">符合 Doxygen 注释风格的 SourceInsight 宏</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-01-05 11:40:10" itemprop="dateCreated datePublished" datetime="2019-01-05T11:40:10+08:00">2019-01-05</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-08 12:51:10" itemprop="dateModified" datetime="2019-06-08T12:51:10+08:00">2019-06-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/" itemprop="url" rel="index"><span itemprop="name">软件编程</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/技术分享/" itemprop="url" rel="index"><span itemprop="name">技术分享</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2019/01/05/符合-Doxygen-注释风格的-SourceInsight-宏/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/01/05/符合-Doxygen-注释风格的-SourceInsight-宏/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/2019/01/05/符合-Doxygen-注释风格的-SourceInsight-宏/" class="leancloud_visitors" data-flag-title="符合 Doxygen 注释风格的 SourceInsight 宏">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ul>
+<li><a href="#Source-Insight-Macro">Source-Insight-Macro</a></li>
+<li><a href="#一、简介">一、简介</a><ul>
+<li><a href="#1.自定义组织信息">1.自定义组织信息</a></li>
+<li><a href="#2.Doxygen风格的函数注释以及Todo标签">2.Doxygen风格的函数注释以及Todo标签</a></li>
+<li><a href="#3.Doxygen格式的单行注释风格">3.Doxygen格式的单行注释风格</a></li>
+</ul>
+</li>
+<li><a href="#二、FAQ">二、FAQ</a><ul>
+<li><a href="#1.关于SourceInsight版本问题">1.关于SourceInsight版本问题</a></li>
+<li><a href="#2.关于Doexgen使用问题">2.关于Doexgen使用问题</a></li>
+</ul>
+</li>
+<li><a href="#三、参考与链接">三、参考与链接</a></li>
+<li><a href="#Info">四、文档信息</a>  </li>
+</ul>
+<h1 id="Source-Insight-Macro">符合 Doxygen 注释风格的 SourceInsight 宏</h1>
+
+<h2 id="一、简介">一、简介</h2>
+
+<p>&emsp;&emsp;该仓库旨在为 <code>C/C++</code> 的开发人员提供一套符合 <a href="https://baike.baidu.com/item/Doxygen/1366536?fr=aladdin" title="Doxygen_百度百科" target="_blank" rel="noopener">Doxygen</a> 注释风格的SourceInsight 宏。具体的宏实现基于 <a href="https://wenku.baidu.com/view/417e4b34eefdc8d376ee3259.html" title="该宏功能扩展文件是华为的 lushengwen (卢胜文)于 2002 年进行整理和开发的" target="_blank" rel="noopener">quicker.em</a> 。<br>&emsp;&emsp;该仓库的具体工作主要是在原有 <a href="https://wenku.baidu.com/view/417e4b34eefdc8d376ee3259.html" title="该宏功能扩展文件是华为的 lushengwen (卢胜文)于 2002 年进行整理和开发的" target="_blank" rel="noopener">quicker.em</a> 的基础上，根据 <a href="https://www.sourceinsight.com/doc/v4/userguide/index.html#t=Manual%2FMacro_Language%2FMacro_Language.htm" target="_blank" rel="noopener">Source Insight 宏语言</a> 语法要求，对其原有功能的扩展，新增功能见下文。  </p>
+<p>&emsp;&emsp;GitHUb项目地址: <a href="https://github.com/0Litost0/Source_Insight_Macro_DoxygenFormat" title="Source-Insight-Macro" target="_blank" rel="noopener">Source_Insight_Macro_DoxygenFormat</a>   </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/01/05/符合-Doxygen-注释风格的-SourceInsight-宏/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://0litost0.github.io/2018/10/14/Ptrace-Linux中一种代码注入技术的应用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Litost_Cheng">
+      <meta itemprop="description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+      <meta itemprop="image" content="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="力托斯特的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2018/10/14/Ptrace-Linux中一种代码注入技术的应用/" class="post-title-link" itemprop="url">Ptrace--Linux中一种代码注入技术的应用</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-10-14 19:41:37" itemprop="dateCreated datePublished" datetime="2018-10-14T19:41:37+08:00">2018-10-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-08 12:51:10" itemprop="dateModified" datetime="2019-06-08T12:51:10+08:00">2019-06-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/" itemprop="url" rel="index"><span itemprop="name">软件编程</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/Linux编程/" itemprop="url" rel="index"><span itemprop="name">Linux编程</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2018/10/14/Ptrace-Linux中一种代码注入技术的应用/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2018/10/14/Ptrace-Linux中一种代码注入技术的应用/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/2018/10/14/Ptrace-Linux中一种代码注入技术的应用/" class="leancloud_visitors" data-flag-title="Ptrace--Linux中一种代码注入技术的应用">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <!-- @[TOC](Ptrace--Linux中一种代码注入技术的应用) -->  
+<h1 id="Ptrace–Linux中一种代码注入技术的应用"><a href="#Ptrace–Linux中一种代码注入技术的应用" class="headerlink" title="Ptrace–Linux中一种代码注入技术的应用"></a>Ptrace–Linux中一种代码注入技术的应用</h1><p>&emsp;&emsp;<em>在以往的工作中，曾遇到以下需求:可以随意的打开或是屏蔽已运行进程的输出。<br>&emsp;&emsp;通过查询相关博客以及开源项目，最终选择<code>ptrace</code>作为最终的实现手段。从理解到最终应用的过程中，以下博客:<a href="http://www.linuxjournal.com/article/6100" target="_blank" rel="noopener">Playing with ptrace (作者：Pradeep Padaia)</a>起到了答疑解惑的作用，本文介绍了该博文的主要内容，并在此基础上加入了个人的一些理解与修改。<br>&emsp;&emsp;此外，原文代码是在i386上运行，而本人所用为64位机，因此对原有代码进行了移植。</em></p>
+<h2 id="一、摘要"><a href="#一、摘要" class="headerlink" title="一、摘要"></a>一、摘要</h2><p>&emsp;&emsp;你曾对系统调用是怎样被中断的而感到好奇么？你曾尝试通过改变系统调用的参数，来愚弄内核么？你曾经想过调试器是如何暂停正在运行的进程，转而由你获得控制权么？<br>&emsp;&emsp;如果你正在尝试用复杂的内核编程来完成任务，可以重新考虑使用Linux提供的一种优雅的机制——<code>ptrace</code>系统调用，来完成这些任务。<code>ptrace</code>提供了一种使得 Tracer 可以观察并控制 Tracee 的机制。该机制可以检测并改变 Tracee 的内核镜像以及寄存器，其主要被用来实现断点调试以及对系统调用的追踪。<br>&emsp;&emsp;在本篇文章中，我们将会了解如何阻止一个系统调用，同时改变它的参数。而在下篇文章中，我们将学习更高级的技术——向一个运行中的程序中设置断点或是注入一段代码。如此一来，我们就可以一窥 Tracee 的寄存器以及数据段，并修改内容。此外，本文也会介绍使得 Tracee 可以被停止并执行任意指令的方式。  </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2018/10/14/Ptrace-Linux中一种代码注入技术的应用/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+  </section>
+
+  
+
+
+          </div>
+          
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg" alt="Litost_Cheng">
+            
+              <p class="site-author-name" itemprop="name">Litost_Cheng</p>
+              <div class="site-description motion-element" itemprop="description">Linux编程，嵌入式开发，计算机网络，C/C++</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/" title="GitHub &rarr; https://github.com/" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:1174731844@qq.com" title="E-Mail &rarr; mailto:1174731844@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Litost_Cheng</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.1.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+      <div id="needsharebutton-float">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/reading_progress/reading_progress.js"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.1"></script>
+
+  <script src="/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/schemes/muse.js?v=7.1.1"></script>
+
+
+
+  
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: '1o2ynjrIsfx2hcMNaQrHTnWF-gzGzoHsz',
+    appKey: 'Un6rXXhsAErXMpMUbSXBqkep',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  <script>
+    
+    function showTime(Counter) {
+      var entries = [];
+      var $visitors = $('.leancloud_visitors');
+
+      $visitors.each(function() {
+        entries.push( $(this).attr('id').trim() );
+      });
+
+      Counter('get', '/classes/Counter', { where: JSON.stringify({ url: { '$in': entries } }) })
+        .done(function({ results }) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.url;
+            var time = item.time;
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for (var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if (countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function ({ responseJSON }) {
+          console.log('LeanCloud Counter Error: ' + responseJSON.code + ' ' + responseJSON.error);
+        });
+    }
+    
+
+    $(function() {
+      $.get('https://app-router.leancloud.cn/2/route?appId=' + 'nmxsGEb6jcXD4E2GjgCCdUa9-gzGzoHsz')
+        .done(function({ api_server }) {
+          var Counter = function(method, url, data) {
+            return $.ajax({
+              method: method,
+              url: 'https://' + api_server + '/1.1' + url,
+              headers: {
+                'X-LC-Id': 'nmxsGEb6jcXD4E2GjgCCdUa9-gzGzoHsz',
+                'X-LC-Key': '9iJ8MsrTPL2OAAapm9v1vcW4',
+                'Content-Type': 'application/json',
+              },
+              data: data
+            });
+          };
+          
+            if ($('.post-title-link').length >= 1) {
+              showTime(Counter);
+            }
+          
+        });
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+  
+  
+  <script src="/lib/needsharebutton/needsharebutton.js"></script>
+  <script>
+    
+    
+      flOptions = {};
+      
+        flOptions.iconStyle = "box";
+      
+        flOptions.boxForm = "horizontal";
+      
+        flOptions.position = "middleRight";
+      
+        flOptions.networks = "Weibo,Wechat,Douban,QQZone,Twitter,Facebook";
+      
+      new needShareButton('#needsharebutton-float', flOptions);
+    
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+<script>
+  $('.highlight').not('.gist .highlight').each(function(i, e) {
+    var $wrap = $('<div>').addClass('highlight-wrap');
+    $(e).after($wrap);
+    $wrap.append($('<button>').addClass('copy-btn').append('复制').on('click', function(e) {
+      var code = $(this).parent().find('.code').find('.line').map(function(i, e) {
+        return $(e).text();
+      }).toArray().join('\n');
+      var ta = document.createElement('textarea');
+      var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+      ta.style.top = yPosition + 'px'; // Prevent page scroll
+      ta.style.position = 'absolute';
+      ta.style.opacity = '0';
+      ta.readOnly = true;
+      ta.value = code;
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, code.length);
+      ta.readOnly = false;
+      var result = document.execCommand('copy');
+      
+        if (result) $(this).text('复制成功');
+        else $(this).text('复制失败');
+      
+      ta.blur(); // For iOS
+      $(this).blur();
+    })).on('mouseleave', function(e) {
+      var $b = $(this).find('.copy-btn');
+      setTimeout(function() {
+        $b.text('复制');
+      }, 300);
+    }).append(e);
+  })
+</script>
+
+
+  
+
+  
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<link rel="stylesheet" href="/static/css/player.css">
+</head>
+
+<div id="QPlayer">
+	<div id="pContent">
+		<div id="player">
+			<span class="cover"></span>
+			<div class="ctrl">
+				<div class="musicTag marquee">
+					<strong>Title</strong>
+					 <span> - </span>
+					<span class="artist">Artist</span>
+				</div>
+				<div class="progress">
+					<div class="timer left">0:00</div>
+					<div class="contr">
+						<div class="rewind icon"></div>
+						<div class="playback icon"></div>
+						<div class="fastforward icon"></div>
+					</div>
+					<div class="right">
+						<div class="liebiao icon"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="ssBtn">
+				<div class="adf"></div>
+		</div>
+	</div>
+	<ol id="playlist"></ol>
+</div>
+<script src="//cdn.bootcss.com/jQuery.Marquee/1.3.94/jquery.marquee.min.js"></script>
+<script>
+  var playlist = [];
+  
+  playlist.push({title:'失落沮丧歌',artist:'my little airport',mp3:'http://music.163.com/song/media/outer/url?id=365841.mp3',cover:'http://p1.music.126.net/L_7A039pUl0BwMBYh4AAig==/104453604650792.jpg?param=130y130'})
+  
+  playlist.push({title:'洋子，洋子',artist:'椅子乐队',mp3:'http://music.163.com/song/media/outer/url?id=574925505.mp3',cover:'https://p2.music.126.net/WxXUfYaY5-nWKZJSPxdMZQ==/109951163380619155.jpg?param=130y130'})
+  
+  var isRotate = true;
+  var autoplay = false;
+</script>
+<script src="/static/js/player.js"></script>
+<script>
+  function bgChange(){
+	var lis= $('.lib');
+	for(var i=0; i<lis.length; i+=2)
+	lis[i].style.background = 'rgba(246, 246, 246, 0.5)';
+  }
+  window.onload = bgChange;
+</script>
+
+
+</body>
+</html>

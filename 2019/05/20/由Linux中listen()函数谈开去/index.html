@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="google-site-verification" content="MfmuF7tQEQQyjyHtalSCQdzjS-Zfgv_lA7dKiTEb_Lw">
+
+  
+  
+  <link rel="stylesheet" href="/lib/needsharebutton/needsharebutton.css">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="TaWjOK7BMS">
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="由Linux中listen()函数谈开去 一、简介  1.前言  2.问题引入     二、原理介绍  1. Tcp三次握手  2. 关于backlog参数的理解    三、实验与分析  1. 实验环境  2. 例程介绍  3. 分步实验  1. Server阻塞于socket()创建后  2. Server阻塞于bind()创建后  3. Server阻塞于listen()后  4. Serv">
+<meta property="og:type" content="article">
+<meta property="og:title" content="由Linux中listen()函数谈开去">
+<meta property="og:url" content="https://0litost0.github.io/2019/05/20/由Linux中listen()函数谈开去/index.html">
+<meta property="og:site_name" content="力托斯特的博客">
+<meta property="og:description" content="由Linux中listen()函数谈开去 一、简介  1.前言  2.问题引入     二、原理介绍  1. Tcp三次握手  2. 关于backlog参数的理解    三、实验与分析  1. 实验环境  2. 例程介绍  3. 分步实验  1. Server阻塞于socket()创建后  2. Server阻塞于bind()创建后  3. Server阻塞于listen()后  4. Serv">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/Connect.svg?sanitize=true">
+<meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpThreeHandShake.svg?sanitize=true">
+<meta property="og:image" content="https://github.com/0Litost0/Tcp_three-way_handshake_Blog/raw/master/Doc/Pic/IncorrectUnderstand.svg?sanitize=true">
+<meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpdumpSocket.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpdumpBind.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpdumpListen.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpdumpAcceptOnce.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpdumpAcceptTimes.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/CorrectUnderstand.svg?sanitize=true">
+<meta property="og:updated_time" content="2019-06-08T04:51:10.158Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="由Linux中listen()函数谈开去">
+<meta name="twitter:description" content="由Linux中listen()函数谈开去 一、简介  1.前言  2.问题引入     二、原理介绍  1. Tcp三次握手  2. 关于backlog参数的理解    三、实验与分析  1. 实验环境  2. 例程介绍  3. 分步实验  1. Server阻塞于socket()创建后  2. Server阻塞于bind()创建后  3. Server阻塞于listen()后  4. Serv">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/Connect.svg?sanitize=true">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://0litost0.github.io/2019/05/20/由Linux中listen()函数谈开去/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>由Linux中listen()函数谈开去 | 力托斯特的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta custom-logo">
+    
+      <div class="site-meta-headline">
+        <a>
+          <img class="custom-logo-image" src="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg" alt="力托斯特的博客">
+        </a>
+      </div>
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">力托斯特的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">YOKO,YOKO！</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+  
+  
+
+  
+
+  <a href="https://github.com/0Litost0" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewbox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a>
+
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+    <div class="reading-progress-bar"></div>
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://0litost0.github.io/2019/05/20/由Linux中listen()函数谈开去/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Litost_Cheng">
+      <meta itemprop="description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+      <meta itemprop="image" content="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="力托斯特的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">由Linux中listen()函数谈开去
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-20 20:14:00" itemprop="dateCreated datePublished" datetime="2019-05-20T20:14:00+08:00">2019-05-20</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-08 12:51:10" itemprop="dateModified" datetime="2019-06-08T12:51:10+08:00">2019-06-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/" itemprop="url" rel="index"><span itemprop="name">软件编程</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/计算机网络/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2019/05/20/由Linux中listen()函数谈开去/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/05/20/由Linux中listen()函数谈开去/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/2019/05/20/由Linux中listen()函数谈开去/" class="leancloud_visitors" data-flag-title="由Linux中listen()函数谈开去">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ul>
+<li><a href="#Title">由Linux中listen()函数谈开去</a></li>
+<li><p><a href="#Brief">一、简介</a></p>
+<ul>
+<li><a href="#Introduction">1.前言</a> </li>
+<li><a href="#Origin">2.问题引入</a> </li>
+</ul>
+</li>
+<li><p><a href="#Principle"> 二、原理介绍</a></p>
+<ul>
+<li><a href="#Tcp_Three_wayhandshake">1. Tcp三次握手</a> </li>
+<li><a href="#Backlog_param">2. 关于backlog参数的理解</a> </li>
+</ul>
+</li>
+<li><p><a href="#Practice">三、实验与分析</a></p>
+<ul>
+<li><a href="#Enviroment">1. 实验环境</a> </li>
+<li><a href="#SourceCode">2. 例程介绍</a> </li>
+<li><a href="#Experiment">3. 分步实验</a> <ul>
+<li><a href="#Pending_on_socket">1. Server阻塞于socket()创建后</a> </li>
+<li><a href="#Pending_on_bind">2. Server阻塞于bind()创建后</a> </li>
+<li><a href="#Pending_on_listen">3. Server阻塞于listen()后</a> </li>
+<li><a href="#Pending_on_accept_once">4. Server阻塞于accept()一次后</a> </li>
+<li><a href="#Pending_on_accept_times">5. Server阻塞于accept()多次</a> </li>
+</ul>
+</li>
+<li><a href="#Summary">4. 实验结果分析</a> </li>
+</ul>
+</li>
+<li><a href="#ReferenceAndLinks">四、参考与链接</a></li>
+<li><a href="#Info">五、文档信息</a></li>
+</ul>
+<h1 id="Title">由Linux中listen()函数谈开去</h1>  
+
+
+<h2 id="Brief">一、简介</h2><br><h3 id="Introduction">1. 前言</h3><br><br>&emsp;&emsp;本篇博文主要谈一谈Linux系统中，在使用socket套接字建立Tcp连接时，关于listen()函数的backlog参数的理解，同时，借由该问题，并结合具体的实践，尝试厘清Tcp连接的建立过程。<br>&emsp;&emsp;本篇博客编写主要参考借鉴了以下两篇博文，并在其基础上，加入了个人的一些思考与探索。<br><br><a id="more"></a><br><br><br>1. <a href="https://blog.csdn.net/yangbodong22011/article/details/60399728" title="深入探索 Linux listen() 函数 backlog 的含义" target="_blank" rel="noopener">深入探索 Linux listen() 函数 backlog 的含义</a><br><br>2. <a href="http://veithen.io/2014/01/01/how-tcp-backlog-works-in-linux.html" title="TCP的中backlog起着怎样的作用" target="_blank" rel="noopener">How TCP backlog works in Linux</a><br><br>&emsp;&emsp;下述内容的讨论，建立在对Tcp/Ip、socket有一定了解的基础上，相关的知识点，可以参考以下博文：<br><br>1.<a href="https://www.cnblogs.com/goodcandle/archive/2005/12/10/socket.html" title="揭开Socket编程的面纱" target="_blank" rel="noopener">揭开Socket编程的面纱</a><br>2.<a href="https://www.cnblogs.com/skynet/archive/2010/12/12/1903949.html" title="Linux Socket编程（不限Linux）" target="_blank" rel="noopener">Linux Socket编程（不限Linux）</a><br><br><br><h3 id="Origin">2. 问题引入</h3><br><br>&emsp;&emsp;当我们尝试在<code>Linux</code>上通过<code>Socket</code>建立一个服务器，并接收客户端的连接请求时，服务器端程序通常需要执行以下流程：<br>1. 使用创建 <a href="http://man7.org/linux/man-pages/man2/socket.2.html" target="_blank" rel="noopener">socket()</a> 创建一个监听描述符<code>ListenFd</code><br>2. 使用 <a href="http://man7.org/linux/man-pages/man2/bind.2.html" target="_blank" rel="noopener">bind()</a> 为<code>ListenFd</code>绑定一个本地的地址，以便于其它的<code>socket</code>（套接字），能够与其建立连接<br>3. 使用 <a href="http://man7.org/linux/man-pages/man2/listen.2.html" target="_blank" rel="noopener">listen()</a> 将<code>ListenFd</code>设置为被动模式——表明自己乐意接受连接请求，并设置【连接建立队列的限制】。<br>4. 调用 <a href="http://man7.org/linux/man-pages/man2/accept.2.html" target="_blank" rel="noopener">accept()</a> 以接收具体的连接。<br>5. 数据交互。。。<br><br>&emsp;&emsp;服务器与客户端通过调用相关函数建立连接的流程如下所示：<br><br><br><div align="center"><span id="Connect.svg"></span><img src="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/Connect.svg?sanitize=true" width="500" hegiht="300" alt="C/S连接建立过程" title="C/S连接建立过程"><br>图1：Tcp连接实现</div><br><br><em>注：在上图中，并未展示断开连接的过程</em><br><br><br>&emsp;&emsp;在平时的工程实践中，自己也都是<a href="https://baike.baidu.com/item/%E7%85%A7%E7%8C%AB%E7%94%BB%E8%99%8E" target="_blank" rel="noopener">照猫画虎</a>, 知其然而不知其所以然。由于最近尝试写一个<a href="https://github.com/0Litost0/TcpClientServerFramework" target="_blank" rel="noopener">使用TCP构建的客户端/服务器公共框架</a>的框架，在写作过程中，发现自己对于很多基础的操作都不明其意，基于此，才有了这边博文。<br>&emsp;&emsp;文章首先介绍socket的一些基本概念，接下来通过一个具体的实例，并结合相应的抓包分析，印证实际与理论是否相符。<br><br><h2 id="Principle">二、原理介绍</h2>  
+
+<h3 id="Tcp_Three_wayhandshake">1. Tcp三次握手</h3>  
+
+<p>&emsp;&emsp;在学习计算机网络的相关知识时，想必大家对于Tcp三次握手的连接过程并不陌生：  </p>
+<div align="center"><img src="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpThreeHandShake.svg?sanitize=true" width="500" hegiht="300" alt="socket中发送的TCP三次握手" title="socket中发送的TCP三次握手"><br>图2: Tcp三次握手</div>
+
+
+
+<p>&emsp;&emsp;正如上图所示： </p>
+<ol>
+<li>客户端请求建立连接，然后进入<span style="background-color:#f1c40f">SYN-SENT</span>状态</li>
+<li>处于<span style="background-color:#f1c40f">LISTEN</span>状态的服务器端在收到连接请求后，给客户端回复应答，同时进入<span style="background-color:#f1c40f">SYN-RCVD</span>状态</li>
+<li>客户端在收到应答后，进入<span style="background-color:#f1c40f">ESTABLISHED</span>状态，同时再次发消息告知服务器端</li>
+<li>服务器端在收到消息后，亦即进入<span style="background-color:#f1c40f">ESTABLISHED</span>状态  </li>
+</ol>
+<p>&emsp;&emsp;在完成上述交互过程后，Tcp 连接建立，两者即可进行后续的数据交互。<br>&emsp;&emsp;以上为建立连接的逻辑过程，看起来清晰易懂，似乎没有什么难以理解的地方，但是，倘若需要我们将三次握手过程与<a href="#Connect.svg">图一</a>的实现联系起来呢？<br>&emsp;&emsp;根据自己以往的经验，具体的实现，与Tcp三次握手的原理图，应该是如下的对应关系：  </p>
+<div align="center"><span id="IncorrectUnderstand.svg"></span><img src="https://github.com/0Litost0/Tcp_three-way_handshake_Blog/raw/master/Doc/Pic/IncorrectUnderstand.svg?sanitize=true" alt="关于Tcp三次握手实现的错误的理解" title="Tcp三次握手实现的错误理解" width="500" hegiht="300"><br>图3: Tcp三次握手实现的错误理解</div>
+
+
+<p>&emsp;&emsp;对于客户端而言：在调用<code>connect()</code>后进入<span style="background-color:#f1c40f">SYN-SENT</span>状态，同时阻塞，以等待服务器应答；在接收到应答后，则进入<span style="background-color:#f1c40f">ESTABLISHED</span>状态。<br><em>注：调用<code>socket()</code>到<code>connect()</code>之间的这段状态，我们暂且将其称为<code>INIT</code>状态</em><br>&emsp;&emsp;对于服务器而言：调用<code>listen()</code>后进入<span style="background-color:#f1c40f">LISTEN</span>状态，在调用<code>accept()</code>接收客户端的连接请求后，会短暂的进入<span style="background-color:#f1c40f">SYN-RCVD</span>状态，随后进入<span style="background-color:#f1c40f">ESTABLISHED</span>状态。<br><em>注：调用<code>socket()</code>到<code>listen()</code>之间的这段状态，我们暂且将其称为<code>INIT</code>状态</em><br>&emsp;&emsp;图中的状态划分，粗看的话，似乎也说的过去，完整体现了三次握手的过程，但事实是否真的如此呢？在展开具体的说明之前，首先需要对<code>listen()</code>函数进行介绍。</p>
+<h3 id="Backlog_param">2. 关于backlog参数的理解</h3>  
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">listen</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">int</span> backlog)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;<code>listen()</code>将<code>sockfd</code>对应的描述符标记为被动模式，所谓被动模式的意思也就是说，可以用<code>accept()</code>来接受收到的连接请求。其中，<code>backlog</code>参数指定列了挂起连接队列可以增长的最大长度。<br>&emsp;&emsp;正如上文所说的，由于Tcp通过三次握手建立连接，一个连接在成功建立并进入<span style="background-color:#f1c40f">ESTABLISHED</span>状态前，会经历一段短暂的<span style="background-color:#f1c40f">SYN-RCVD</span>状态，之后就可以被<code>accept()</code>系统调用处理，并返回给应用。这意味着Tcp/Ip协议栈拥有两种方式来实现处于<span style="background-color:#f1c40f">LISTEN</span>状态的socket套接字的<code>backlog</code>队列：</p>
+<ul>
+<li>方式1  <blockquote>
+<p>&emsp;&emsp;The implementation uses a single queue, the size of which is determined by the backlog argument of the listen syscall. When a SYN packet is received, it sends back a SYN/ACK packet and adds the connection to the queue. When the corresponding ACK is received, the connection changes its state to ESTABLISHED and becomes eligible for handover to the application. This means that the queue can contain connections in two different state: SYN RECEIVED and ESTABLISHED. Only connections in the latter state can be returned to the application by the accept syscall.<br>——《<a href="http://veithen.io/2014/01/01/how-tcp-backlog-works-in-linux.html" title="TCP的中backlog起着怎样的作用" target="_blank" rel="noopener">How TCP backlog works in Linux</a>》  </p>
+</blockquote>
+</li>
+</ul>
+<p>&emsp;&emsp;实现使用单个队列，其尺寸由<code>listen()</code>的<code>backlog</code>参数决定。处于被动模式的<code>socket</code>在收到一个<code>SYN</code>报文后，它返回一个<code>SYN/ACK</code>报文，并将该链接加入队列。在收到相应的<code>ACK</code>应答报文后，此连接将状态改为<span style="background-color:#f1c40f">ESTABLISHED</span>，此后，才有资格被移交给应用程序（<em>注：才可以用于后续的交互</em>）。以上也就意味着，该队列可能同时包含处于<span style="background-color:#f1c40f">SYN-RCVD</span>以及<span style="background-color:#f1c40f">ESTABLISHED</span>两种状态的连接。只有处于后一种状态的连接，方可以被<code>accept()</code>处理，并返回给用户。 </p>
+<p><span id="Way2"></span></p>
+<ul>
+<li>方式2  <blockquote>
+<p>&emsp;&emsp;The implementation uses two queues, a SYN queue (or incomplete connection queue) and an accept queue (or complete connection queue). Connections in state SYN RECEIVED are added to the SYN queue and later moved to the accept queue when their state changes to ESTABLISHED, i.e. when the ACK packet in the 3-way handshake is received. As the name implies, the accept call is then implemented simply to consume connections from the accept queue. In this case, the backlog argument of the listen syscall determines the size of the accept queue.<br>——《<a href="http://veithen.io/2014/01/01/how-tcp-backlog-works-in-linux.html" title="TCP的中backlog起着怎样的作用" target="_blank" rel="noopener">How TCP backlog works in Linux</a>》  </p>
+</blockquote>
+</li>
+</ul>
+<p>&emsp;&emsp;此种实现使用两个队列：<code>SYN</code>队列(连接未完成队列)，以及<code>accept</code>队列（已完成连接的队列）。<span style="background-color:#f1c40f">SYN-RCVD</span>状态的连接被加入<code>SYN</code>队列，当连接状态变为<span style="background-color:#f1c40f">ESTABLISHED</span>后，则被移入到<code>accept</code>队列（例如，在接收到三次握手中的<code>ACK</code>报文时）。顾名思义,<code>accept()</code>调用，其实现就是为了接受来自<code>accept</code>队列的连接（<em>注：所谓接受连接，意即该连接已经建立，可以通过调用<code>accept()</code>被返回给用户,并用于后续交互。随后，该连接也就被从<code>accept</code>队列中移除</em>）。对于此种方式，<code>listen()</code>调用的<code>backlog</code>参数，决定了<code>accept</code>队列的大小。</p>
+<blockquote>
+<p>&emsp;&emsp;Historically, BSD derived TCP implementations use the first approach. That choice implies that when the maximum backlog is reached, the system will no longer send back SYN/ACK packets in response to SYN packets. Usually the TCP implementation will simply drop the SYN packet (instead of responding with a RST packet) so that the client will retry.<br>&emsp;&emsp;The BSD implementation does use two separate queues, but they behave as a single queue with a fixed maximum size determined by (but not necessary exactly equal to) the backlog argument：</p>
+<blockquote>
+<p>The queue limit applies to the sum of […] the number of entries on the incomplete connection queue […] and […] the number of entries on the completed connection queue […].</p>
+</blockquote>
+<p>——《<a href="http://veithen.io/2014/01/01/how-tcp-backlog-works-in-linux.html" title="TCP的中backlog起着怎样的作用" target="_blank" rel="noopener">How TCP backlog works in Linux</a>》  </p>
+</blockquote>
+<p>&emsp;&emsp;从历史上看，派生自BSD的Tcp实现使用第一种方案。该选择意味着，当队列达到<code>backlog</code>所定义的最大值时，系统不会发送<code>SYN/ACK</code>报文去回应<code>SYN</code>报文。通常，Tcp实现只会丢弃<code>SYN</code>报文（而不是应答<code>RST</code>报文），以便客户端可以重试。<br>&emsp;&emsp;BSD实现确实是用两个队列，然而它们的行为就如同是由<code>backlog</code>参数决定大小的单个队列。<br>&emsp;&emsp;队列限制适用于未完成连接队列的条目数与已完成连接条目数的总和。</p>
+<blockquote>
+<p>On Linux, things are different, as mentioned in the man page of the listen syscall:</p>
+<blockquote>
+<p>The behavior of the backlog argument on TCP sockets changed with Linux 2.2. Now it specifies the queue length for completely established sockets waiting to be accepted, instead of the number of incomplete connection requests. The maximum length of the queue for incomplete sockets can be set using /proc/sys/net/ipv4/tcp_max_syn_backlog.</p>
+</blockquote>
+<p>——《<a href="http://veithen.io/2014/01/01/how-tcp-backlog-works-in-linux.html" title="TCP的中backlog起着怎样的作用" target="_blank" rel="noopener">How TCP backlog works in Linux</a>》  </p>
+</blockquote>
+<p>&emsp;&emsp;在Linux上，情况则有所不同，以下是<code>man page</code>中关于<code>listen</code>系统调用的内容：<br>&emsp;&emsp;Tcp socket的<code>backlog</code>参数的行为在Linux2.2中有所改变。它现在指定了等待被接受的连接已完成的套接字的队列（<em>注：即<code>accept</code>队列</em>）的长度，而不是未完成的连接请求的个数（<em>注：即<code>SYN</code>队列中所包含的连接个数</em>）。 未完成连接队列的最大长度可以被设定为<code>/proc/sys/net/ipv4/tcp_max_syn_backlog</code>。<br>&emsp;&emsp;为了验证实际是否与上述理论是一致的，我们将在下文中通过具体的例程，并结合具体的抓包数据，对Tcp的连接过程进行分析。</p>
+<h2 id="Practice">三、实验与分析</h2>
+
+<h3 id="Enviroment">1. 实验环境</h3> 
+
+<p>  处理器名称：Intel(R) Core(TM) i3-4170 CPU @ 3.70GHz<br>  系统版本：CentOS release 6.5 (Final)<br>  编译器版本：gcc version 4.4.7 20120313</p>
+<h3 id="SourceCode">2. 例程介绍</h3>   
+
+<p>&emsp;&emsp;实验使用的例程包括<code>Client</code>与<code>Server</code>两部分，<a href="https://github.com/0Litost0/Tcp_three-way_handshake_Blog/tree/master/Example" target="_blank" rel="noopener">具体地址详见</a>。</p>
+<ul>
+<li>客户端代码片段<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;netinet/in.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;strings.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdarg.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sstream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PORT 17777</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> THREAD_NUM 6  <span class="comment">//定义创建的线程数量</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLINE 1024</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">stServAddr</span>;</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*@brief 格式化错误信息</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@param int errnoflag</span></span><br><span class="line"><span class="comment">*@param int error</span></span><br><span class="line"><span class="comment">*@param const char *fmt</span></span><br><span class="line"><span class="comment">*@param va_list ap</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@return</span></span><br><span class="line"><span class="comment">* </span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@author Litost_Cheng</span></span><br><span class="line"><span class="comment">*@date 2019年1月21日</span></span><br><span class="line"><span class="comment">*@note 新生成函数</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">ErrDoit</span><span class="params">(<span class="keyword">int</span> errnoflag, <span class="keyword">int</span> error, <span class="keyword">const</span> <span class="keyword">char</span> *fmt, va_list ap)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span>	buf[MAXLINE];</span><br><span class="line"></span><br><span class="line">	vsnprintf(buf, MAXLINE<span class="number">-1</span>, fmt, ap);</span><br><span class="line">	<span class="keyword">if</span> (errnoflag)</span><br><span class="line">		<span class="built_in">snprintf</span>(buf + <span class="built_in">strlen</span>(buf), MAXLINE - <span class="built_in">strlen</span>(buf) - <span class="number">1</span>, <span class="string">": errno[%d] %s"</span>,</span><br><span class="line">				 error, strerror(error));</span><br><span class="line">	<span class="built_in">strcat</span>(buf, <span class="string">"\n"</span>);</span><br><span class="line">	fflush(<span class="built_in">stdout</span>);		<span class="comment">/* in case stdout and stderr are the same */</span></span><br><span class="line">	<span class="built_in">fputs</span>(buf, <span class="built_in">stderr</span>);</span><br><span class="line">	fflush(<span class="literal">NULL</span>);		<span class="comment">/* flushes all stdio output streams */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*@brief 判断条件，打印errno并退出</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@param bool bCondition</span></span><br><span class="line"><span class="comment">*@param const char *fmt</span></span><br><span class="line"><span class="comment">*@param ...</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@return </span></span><br><span class="line"><span class="comment">* </span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@author Litost_Cheng</span></span><br><span class="line"><span class="comment">*@date 2019年5月11日</span></span><br><span class="line"><span class="comment">*@note 新生成函数</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">CondJudgeExit</span><span class="params">(<span class="keyword">bool</span> bCondition, <span class="keyword">const</span> <span class="keyword">char</span> *fmt, ...)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!bCondition)</span><br><span class="line">    &#123;</span><br><span class="line">		va_list 	ap;</span><br><span class="line">		va_start(ap, fmt);</span><br><span class="line">		ErrDoit(<span class="number">1</span>, errno, fmt, ap);</span><br><span class="line">		va_end(ap);</span><br><span class="line">		<span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> bCondition;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">func</span><span class="params">(<span class="keyword">void</span> *)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> nConnFd;</span><br><span class="line">    nConnFd = socket(AF_INET,SOCK_STREAM,<span class="number">0</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"nConnFd : %d\n"</span>,nConnFd);</span><br><span class="line"></span><br><span class="line">    <span class="comment">///在没个子线程中，都会尝试与服务器连接连接，并返回结果</span></span><br><span class="line">    <span class="keyword">if</span> ((connect(nConnFd,(struct sockaddr *)&amp;stServAddr,<span class="keyword">sizeof</span>(struct sockaddr_in)) == <span class="number">-1</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"[nConnFd] Connect failed: [%s]\n"</span>, strerror(errno));</span><br><span class="line">        <span class="keyword">return</span> (<span class="keyword">void</span> *)<span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">	    <span class="built_in">printf</span>(<span class="string">"Connect succeed!\n"</span>);</span><br><span class="line">        <span class="built_in">stringstream</span> strStream;</span><br><span class="line">        strStream &lt;&lt; <span class="string">"["</span> &lt;&lt; nConnFd &lt;&lt; <span class="string">"]"</span> &lt;&lt; <span class="string">"Send Message"</span>; </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"strStream is [%s]\n"</span>, strStream.str().c_str());</span><br><span class="line">        <span class="keyword">if</span> (<span class="number">-1</span> == write(nConnFd, strStream.str().c_str(), strStream.str().size()))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"[nConnFd] Connect failed: [%s]\n"</span>, strerror(errno));</span><br><span class="line">            <span class="keyword">return</span> (<span class="keyword">void</span> *)<span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"[nConnFd] Send succeed!\n"</span>, nConnFd);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memset</span>(&amp;stServAddr,<span class="number">0</span>,<span class="keyword">sizeof</span>(struct sockaddr_in));</span><br><span class="line">    stServAddr.sin_family = AF_INET;</span><br><span class="line">    stServAddr.sin_port = htons(PORT);</span><br><span class="line">    inet_aton(<span class="string">"127.0.0.1"</span>,(struct in_addr *)&amp;stServAddr.sin_addr); </span><br><span class="line"></span><br><span class="line">    <span class="comment">//创建线程并且等待线程完成</span></span><br><span class="line">    <span class="keyword">pthread_t</span> nPid[THREAD_NUM];</span><br><span class="line">	<span class="comment">//system("netstat -atn | grep '17777'");</span></span><br><span class="line">	<span class="comment">//printf("netstat -atn\n");</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; THREAD_NUM; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        pthread_create(&amp;nPid[i],<span class="literal">NULL</span>,&amp;func,<span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	sleep(<span class="number">3</span>);</span><br><span class="line">	<span class="comment">//system("netstat -atn | grep '17777'");</span></span><br><span class="line">	<span class="comment">//printf("netstat -atn\n");</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; THREAD_NUM; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        pthread_join(nPid[i], <span class="literal">NULL</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>&emsp;&emsp;以上，为了搞清<code>backlog</code>参数的真实含义，客户端进程会创建<code>THREAD_NUM</code>个线程，来向服务器端发起连接请求，并返回相应的结果。</p>
+<ul>
+<li>服务器端代码片段<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;netinet/in.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdarg.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PORT  17777    <span class="comment">//端口号</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BACKLOG 2     <span class="comment">//BACKLOG大小</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLINE 1024</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*@brief 格式化错误信息</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@param int errnoflag</span></span><br><span class="line"><span class="comment">*@param int error</span></span><br><span class="line"><span class="comment">*@param const char *fmt</span></span><br><span class="line"><span class="comment">*@param va_list ap</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@return</span></span><br><span class="line"><span class="comment">* </span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@author Litost_Cheng</span></span><br><span class="line"><span class="comment">*@date 2019年1月21日</span></span><br><span class="line"><span class="comment">*@note 新生成函数</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">ErrDoit</span><span class="params">(<span class="keyword">int</span> errnoflag, <span class="keyword">int</span> error, <span class="keyword">const</span> <span class="keyword">char</span> *fmt, va_list ap)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span>	buf[MAXLINE];</span><br><span class="line"></span><br><span class="line">	vsnprintf(buf, MAXLINE<span class="number">-1</span>, fmt, ap);</span><br><span class="line">	<span class="keyword">if</span> (errnoflag)</span><br><span class="line">		<span class="built_in">snprintf</span>(buf + <span class="built_in">strlen</span>(buf), MAXLINE - <span class="built_in">strlen</span>(buf) - <span class="number">1</span>, <span class="string">": errno[%d] %s"</span>,</span><br><span class="line">				 error, strerror(error));</span><br><span class="line">	<span class="built_in">strcat</span>(buf, <span class="string">"\n"</span>);</span><br><span class="line">	fflush(<span class="built_in">stdout</span>);		<span class="comment">/* in case stdout and stderr are the same */</span></span><br><span class="line">	<span class="built_in">fputs</span>(buf, <span class="built_in">stderr</span>);</span><br><span class="line">	fflush(<span class="literal">NULL</span>);		<span class="comment">/* flushes all stdio output streams */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*@brief 判断条件，打印errno并退出</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@param bool bCondition</span></span><br><span class="line"><span class="comment">*@param const char *fmt</span></span><br><span class="line"><span class="comment">*@param ...</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@return </span></span><br><span class="line"><span class="comment">* </span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@author Litost_Cheng</span></span><br><span class="line"><span class="comment">*@date 2019年5月11日</span></span><br><span class="line"><span class="comment">*@note 新生成函数</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">CondJudgeExit</span><span class="params">(<span class="keyword">bool</span> bCondition, <span class="keyword">const</span> <span class="keyword">char</span> *fmt, ...)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!bCondition)</span><br><span class="line">    &#123;</span><br><span class="line">		va_list 	ap;</span><br><span class="line">		va_start(ap, fmt);</span><br><span class="line">		ErrDoit(<span class="number">1</span>, errno, fmt, ap);</span><br><span class="line">		va_end(ap);</span><br><span class="line">		<span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> bCondition;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*@brief 展示连接信息</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@param bool bCondition</span></span><br><span class="line"><span class="comment">*@param const char *fmt</span></span><br><span class="line"><span class="comment">*@param ...</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@return void</span></span><br><span class="line"><span class="comment">* </span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*@author Litost_Cheng</span></span><br><span class="line"><span class="comment">*@date 2019年5月11日</span></span><br><span class="line"><span class="comment">*@note 新生成函数</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Display</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	system(<span class="string">"netstat -atn | grep '17777' | sort -n -t : -k 2"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"netstat -atn | grep '17777' | sort -n -t : -k 2\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//system("lsof -nP -iTCP | grep '17777'");</span></span><br><span class="line">	<span class="comment">//printf("lsof -nP -iTCP | grep '17777'\n");</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">char</span> *pCmd[<span class="number">5</span>];</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> nConLen;</span><br><span class="line">    <span class="keyword">int</span> nSockFd,nConnFd;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">stServAddr</span>,<span class="title">stConnAddr</span>;</span></span><br><span class="line">	<span class="keyword">int</span> nCmd = <span class="number">0</span>;</span><br><span class="line">	pCmd[<span class="number">0</span>] = <span class="string">"socket"</span>;</span><br><span class="line">	pCmd[<span class="number">1</span>] = <span class="string">"bind"</span>;</span><br><span class="line">	pCmd[<span class="number">2</span>] = <span class="string">"listen"</span>;</span><br><span class="line">	pCmd[<span class="number">3</span>] = <span class="string">"accept_once"</span>;</span><br><span class="line">	pCmd[<span class="number">4</span>] = <span class="string">"accept_times"</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Please input the Cmd: \n"</span>);</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> n=<span class="number">0</span>; n&lt;<span class="number">5</span>; n++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"\t[%d]: [%s]\n"</span>, n, pCmd[n]);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cin</span> &gt;&gt; nCmd;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">string</span> strSysCmd =  <span class="string">"tcpdump -i lo -s 0 -w ./Tcpdump_"</span>;</span><br><span class="line">	strSysCmd += pCmd[nCmd];</span><br><span class="line">	strSysCmd += <span class="string">".cap"</span>;</span><br><span class="line">	strSysCmd += <span class="string">" &amp;"</span>;</span><br><span class="line">	system(strSysCmd.c_str());</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"[%s]\n"</span>, strSysCmd.c_str());</span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"Start:"</span>);</span><br><span class="line">		Display();</span><br><span class="line">		<span class="comment">//创建套接字</span></span><br><span class="line">		CondJudgeExit(((nSockFd = socket(AF_INET,SOCK_STREAM,<span class="number">0</span>)) != <span class="number">-1</span>), <span class="string">"Create socket failed!\n"</span>);</span><br><span class="line">		<span class="keyword">if</span> (<span class="number">0</span> == nCmd)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//为套接字绑定地址，需要注意字节序</span></span><br><span class="line">		<span class="built_in">memset</span>(&amp;stServAddr,<span class="number">0</span>,<span class="keyword">sizeof</span>(struct sockaddr_in));</span><br><span class="line">		stServAddr.sin_family = AF_INET;</span><br><span class="line">		stServAddr.sin_port = htons(PORT);</span><br><span class="line">		stServAddr.sin_addr.s_addr = htonl(INADDR_ANY);</span><br><span class="line">		</span><br><span class="line">		CondJudgeExit((bind(nSockFd,(struct sockaddr *)&amp;stServAddr,<span class="keyword">sizeof</span>(struct sockaddr_in)) != <span class="number">-1</span>), <span class="string">"bind failed!\n"</span>);</span><br><span class="line">		<span class="keyword">if</span> (<span class="number">1</span> == nCmd)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//设置为被动模式	</span></span><br><span class="line">		CondJudgeExit((listen(nSockFd,BACKLOG) != <span class="number">-1</span>), <span class="string">"listen filed!\n"</span>);</span><br><span class="line">		<span class="keyword">if</span> (<span class="number">2</span> == nCmd)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;	</span><br><span class="line"></span><br><span class="line">		<span class="comment">//accept once</span></span><br><span class="line">		nConLen = <span class="keyword">sizeof</span>(struct sockaddr_in);</span><br><span class="line">		<span class="comment">//sleep(10);                  //sleep 10s之后接受一个连接</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">		<span class="comment">//该套接字默认为阻塞模式，所以，倘若没有接受的一个成功建立的连接，则会一直阻塞在这里</span></span><br><span class="line">		accept(nSockFd,(struct sockaddr *)&amp;stConnAddr,(<span class="keyword">socklen_t</span> *)&amp;nConLen);</span><br><span class="line">		</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"I have accept one Connect: [%s], port[%d] \n"</span>, inet_ntoa(stConnAddr.sin_addr), ntohs(stConnAddr.sin_port));</span><br><span class="line">		</span><br><span class="line"></span><br><span class="line">		</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">if</span> (<span class="number">3</span> == nCmd)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"Pending on [%s]\n"</span>, pCmd[nCmd]);</span><br><span class="line">		<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			sleep(<span class="number">3</span>);                  <span class="comment">//周期性接受连接请求</span></span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">"I will accept one\n"</span>);</span><br><span class="line">			accept(nSockFd,(struct sockaddr *)&amp;stConnAddr,(<span class="keyword">socklen_t</span> *)&amp;nConLen);</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">"I have accept one Connect: [%s], port[%d] \n"</span>, inet_ntoa(stConnAddr.sin_addr), ntohs(stConnAddr.sin_port));</span><br><span class="line"></span><br><span class="line">			Display();</span><br><span class="line">		&#125;		</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">while</span>(<span class="number">0</span>);</span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"Pending on [%s]\n"</span>, pCmd[nCmd]);</span><br><span class="line">		Display();</span><br><span class="line">		sleep(<span class="number">1</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>&emsp;&emsp;对于服务器端进程而言，我们手动将<code>backlog</code>设置为<code>BACKLOG</code>，以判断其如何处理过量的连接；此外，为了厘清Tcp三次握手与具体实现之间的联系，该例程会根据用户输入的不同的选项，将程序阻塞在不同阶段，并结合对应时刻的连接状态以及抓包数据，确定当前连接所处的状态。<br>&emsp;&emsp;在开始具体的实验前，有以下几点是需要我们注意的：</p>
+<ol>
+<li>为了理解<code>backlog</code>参数的实际含义，实验过程中，我们要求<code>Client</code>程序中的<code>THREAD_NUM</code>参数应该要大于<code>Server</code>中的<code>BACKLOG</code>,以认为造成过量的连接请求。</li>
+<li>代码的编译使用自动的<code>makefile</code>文件模板<a href="https://github.com/0Litost0/MakeFileTemplate" target="_blank" rel="noopener">MakeFileTemplate</a>,用户只需执行<code>make</code>命令，即可生成相应的可执行文件。</li>
+<li>连接状态的获取使用<a href="https://www.cnblogs.com/peida/archive/2013/03/08/2949194.html" target="_blank" rel="noopener">netstat</a>获取</li>
+<li>抓包数据的获取使用Tcpdump,并配合Wireshark工具对抓包进行分析，关于两工具的使用，详见该链接：<a href="https://www.jianshu.com/p/8d9accf1d2f1" target="_blank" rel="noopener">聊聊 tcpdump 与 Wireshark 抓包分析</a>。</li>
+</ol>
+<h3 id="Experiment">3. 分步实验</h3>  
+
+<p>在具体的实验过程中，我们会将<code>Server</code>分别阻塞以下几个阶段，同时会附上相应的程序输出（<code>Client</code>,<code>Server</code>），连接状态，以及抓包数据，以方便读者能够有一个直观的认识。  </p>
+<h4 id="Pending_on_socket">1. Server阻塞于socket()创建后</h4>  
+
+<ul>
+<li><p>实验数据  </p>
+<ol>
+<li><p>客户端输出  </p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@litost Client]# ./Client </span><br><span class="line">nConnFd : <span class="number">3</span></span><br><span class="line">nConnFd : <span class="number">4</span></span><br><span class="line">nConnFd : <span class="number">5</span></span><br><span class="line">[nConnFd] Connect failed: [Connection refused]</span><br><span class="line">[nConnFd] Connect failed: [Connection refused]</span><br><span class="line">[nConnFd] Connect failed: [Connection refused]</span><br><span class="line">nConnFd : <span class="number">6</span></span><br><span class="line">[nConnFd] Connect failed: [Connection refused]</span><br><span class="line">nConnFd : <span class="number">7</span></span><br><span class="line">[nConnFd] Connect failed: [Connection refused]</span><br><span class="line">nConnFd : <span class="number">8</span></span><br><span class="line">[nConnFd] Connect failed: [Connection refused]</span><br><span class="line">[root@litost Client]#</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>服务器输出</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@litost Server]# ./Server </span><br><span class="line">Please input the Cmd: </span><br><span class="line">        [<span class="number">0</span>]: [socket]</span><br><span class="line">        [<span class="number">1</span>]: [bind]</span><br><span class="line">        [<span class="number">2</span>]: [listen]</span><br><span class="line">        [<span class="number">3</span>]: [accept_once]</span><br><span class="line">        [<span class="number">4</span>]: [accept_times]</span><br><span class="line"><span class="number">0</span></span><br><span class="line">[tcpdump -i lo -s <span class="number">0</span> -w ./Tcpdump_socket.cap &amp;]</span><br><span class="line">Start:netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">Pending on [socket]</span><br><span class="line">netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">tcpdump: listening on lo, link-type EN10MB (Ethernet), capture size 65535 bytes</span><br><span class="line">Pending on [socket]</span><br><span class="line">netstat -atn | grep '17777' | sort -n -t : -k 2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>抓包数据  </p>
+<div><img src="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpdumpSocket.png" alt="阻塞于socket()" title="阻塞于socket()" width="500" hegiht="700"></div>
+
+
+</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li>数据分析<br>&emsp;&emsp;从以上实验数据，我们不难看出，当<code>Client</code>尝试去连接阻塞在<code>socket()</code>状态的<code>Server</code>时，连接全部失败，从抓包获取到的数据来看，针对客户端的<code>SYN</code>请求，<code>Server</code>直接回复了<code>RST</code>，而从<code>Client</code>调用<code>accept()</code> 返回的错误结果来看，显示连接被拒绝。<br>&emsp;&emsp;因此在该阶段，<code>Client</code>应该是进入了短暂的<span style="background-color:#f1c40f">SYN-SENT</span>阶段(<em>注：并未从<code>netstat</code>抓取到有关数据，可能是由于连接迅速被断开导致</em>)，随后连接即被拒绝,而<code>Server</code>则是处于<span style="background-color:#f1c40f">CLOSED</span>状态。  </li>
+</ul>
+<h4 id="Pending_on_bind">2. Server阻塞于bind()后</h4>  
+
+<ul>
+<li><p>实验数据  </p>
+<ol>
+<li><p>客户端输出  </p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@litost Client]# ./Client </span><br><span class="line">nConnFd : <span class="number">3</span></span><br><span class="line">nConnFd : <span class="number">4</span></span><br><span class="line">nConnFd : <span class="number">5</span></span><br><span class="line">[nConnFd] Connect failed: [Connection refused]</span><br><span class="line">[nConnFd] Connect failed: [Connection refused]</span><br><span class="line">[nConnFd] Connect failed: [Connection refused]</span><br><span class="line">nConnFd : <span class="number">6</span></span><br><span class="line">[nConnFd] Connect failed: [Connection refused]</span><br><span class="line">nConnFd : <span class="number">7</span></span><br><span class="line">[nConnFd] Connect failed: [Connection refused]</span><br><span class="line">nConnFd : <span class="number">8</span></span><br><span class="line">[nConnFd] Connect failed: [Connection refused]</span><br><span class="line">[root@litost Client]#</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>服务器端输出</p>
+ <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@litost Server]# ./Server </span><br><span class="line">Please input the Cmd: </span><br><span class="line">        [<span class="number">0</span>]: [socket]</span><br><span class="line">        [<span class="number">1</span>]: [bind]</span><br><span class="line">        [<span class="number">2</span>]: [listen]</span><br><span class="line">        [<span class="number">3</span>]: [accept_once]</span><br><span class="line">        [<span class="number">4</span>]: [accept_times]</span><br><span class="line"><span class="number">1</span></span><br><span class="line">[tcpdump -i lo -s <span class="number">0</span> -w ./Tcpdump_bind.cap &amp;]</span><br><span class="line">Start:netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">Pending on [bind]</span><br><span class="line">tcpdump: listening on lo, link-type EN10MB (Ethernet), capture size 65535 bytes</span><br><span class="line">netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">Pending on [bind]</span><br><span class="line">netstat -atn | grep '17777' | sort -n -t : -k 2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>抓包数据  </p>
+<div><img src="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpdumpBind.png" alt="阻塞于bind()" title="阻塞于bind()" width="500" hegiht="700"></div>
+
+</li>
+</ol>
+<ul>
+<li>数据分析<br>&emsp;&emsp;在实际的实验过程中，对于<code>Client</code>而言，其情况与阻塞在<code>socket()</code>时保持一致：连接全部失败。<br>&emsp;&emsp;因此在该阶段，<code>Client</code>应该也是进入了短暂的<span style="background-color:#f1c40f">SYN-SENT</span>阶段(<em>注：并未从<code>netstat</code>抓取到有关数据，可能是由于连接迅速被断开导致</em>)，随后连接即被拒绝,而<code>Server</code>一直处于<span style="background-color:#f1c40f">CLOSED</span>状态。   </li>
+</ul>
+<h4 id="Pending_on_listen">3. Server阻塞于listen()后</h4>  
+</li>
+<li><p>实验数据  </p>
+<ol>
+<li><p>客户端输出  </p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[root@litost Client]# ./Client </span><br><span class="line">nConnFd : <span class="number">3</span></span><br><span class="line">nConnFd : <span class="number">4</span></span><br><span class="line">nConnFd : <span class="number">5</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">5</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">4</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">3</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">nConnFd : <span class="number">6</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">6</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">nConnFd : <span class="number">7</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">7</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">nConnFd : <span class="number">8</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">8</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">^C</span><br><span class="line">[root@litost Client]#</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>服务器端输出</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">[root@litost Server]# ./Server </span><br><span class="line">Please input the Cmd: </span><br><span class="line">        [<span class="number">0</span>]: [socket]</span><br><span class="line">        [<span class="number">1</span>]: [bind]</span><br><span class="line">        [<span class="number">2</span>]: [listen]</span><br><span class="line">        [<span class="number">3</span>]: [accept_once]</span><br><span class="line">        [<span class="number">4</span>]: [accept_times]</span><br><span class="line"><span class="number">2</span></span><br><span class="line">[tcpdump -i lo -s <span class="number">0</span> -w ./Tcpdump_listen.cap &amp;]</span><br><span class="line">Start:netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">Pending on [listen]</span><br><span class="line">tcpdump: listening on lo, link-type EN10MB (Ethernet), capture size 65535 bytes</span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">17777</span>               <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      </span><br><span class="line">netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">Pending on [listen]</span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">17777</span>               <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      </span><br><span class="line">netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">Pending on [listen]</span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">17777</span>               <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40355</span>             SYN_RECV    </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40356</span>             SYN_RECV    </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40352</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40353</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40354</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40352</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40353</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40354</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40355</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40356</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">1</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40357</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             SYN_SENT    </span><br><span class="line">netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">Pending on [listen]</span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">17777</span>               <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40355</span>             SYN_RECV    </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40356</span>             SYN_RECV    </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40352</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40353</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40354</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40352</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40353</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40354</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40355</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40356</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">1</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40357</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             SYN_SENT    </span><br><span class="line">netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">Pending on [listen]</span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">17777</span>               <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40355</span>             SYN_RECV    </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40356</span>             SYN_RECV    </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40357</span>             SYN_RECV    </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40352</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40353</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40354</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40352</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40353</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40354</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40355</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40356</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40357</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>抓包数据</p>
+<div><img src="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpdumpListen.png" alt="阻塞于listen()" title="阻塞于listen()" width="500" hegiht="300"></div>
+
+</li>
+</ol>
+<ul>
+<li>数据分析<br>&emsp;&emsp;在实际的实验过程中，对于<code>Client</code>而言，从<code>connect()</code>以及<code>write()</code>的结果来看，所有的连接都已成功建立，且处于<span style="background-color:#f1c40f">ESTABLISHED</span>状态。<br>&emsp;&emsp;但是，对于<code>Server</code>而言，有三个套接字（端口分别为：<code>40352</code>,<code>40353</code>,<code>40354</code>）处于<span style="background-color:#f1c40f">ESTABLISHED</span>状态，剩余的三个则仍处于<span style="background-color:#f1c40f">SYN_RECV</span>（但是需要注意的是,我们是将<code>backlog</code>的值设置为2）。同时，我们结合具体的抓包数据进行分析：针对所有连接而言，Tcp三次握手过程，都已完成。由此说明，对于处于被动模式的套接字(调用<code>listen()</code>后)，能够自动处理接收到的连接请求，并完成三次握手的交互。同时，会将<code>backlog + 1</code>数量的连接放置于<code>accept</code>队列。<br>&emsp;&emsp;因此在该阶段，<code>Client</code>都处于<span style="background-color:#f1c40f">ESTABLISHED</span>阶段，<code>Server</code>则有<code>backlog + 1</code>数量的连接处于<span style="background-color:#f1c40f">ESTABLISHED</span>，剩余则是处于<span style="background-color:#f1c40f">SYN_RECV</span>状态。  </li>
+</ul>
+<h4 id="Pending_on_accept_once">4. Server阻塞于accept()一次后</h4>  
+</li>
+<li><p>实验数据  </p>
+<ol>
+<li><p>客户端输出  </p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[root@litost Client]# ./Client </span><br><span class="line">nConnFd : <span class="number">3</span></span><br><span class="line">nConnFd : <span class="number">4</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">4</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">3</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">nConnFd : <span class="number">5</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">5</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">nConnFd : <span class="number">6</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">6</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">nConnFd : <span class="number">7</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">7</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">nConnFd : <span class="number">8</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">8</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">^C</span><br><span class="line">[root@litost Client]#</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>服务器端输出</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">[root@litost Server]# ./Server </span><br><span class="line">Please input the Cmd: </span><br><span class="line">        [<span class="number">0</span>]: [socket]</span><br><span class="line">        [<span class="number">1</span>]: [bind]</span><br><span class="line">        [<span class="number">2</span>]: [listen]</span><br><span class="line">        [<span class="number">3</span>]: [accept_once]</span><br><span class="line">        [<span class="number">4</span>]: [accept_times]</span><br><span class="line"><span class="number">3</span></span><br><span class="line">[tcpdump -i lo -s <span class="number">0</span> -w ./Tcpdump_accept_once.cap &amp;]</span><br><span class="line">Start:netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">tcpdump: listening on lo, link-type EN10MB (Ethernet), capture size 65535 bytes</span><br><span class="line">I have accept one Connect: [<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>], port[<span class="number">42653</span>] </span><br><span class="line">Pending on [accept_once]</span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">17777</span>               <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40362</span>             SYN_RECV    </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40363</span>             SYN_RECV    </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40358</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40359</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40360</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40361</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40358</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40359</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40360</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40361</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40362</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40363</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">Pending on [accept_once]</span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">17777</span>               <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40362</span>             SYN_RECV    </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40363</span>             SYN_RECV    </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40358</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40359</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40360</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40361</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40358</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40359</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40360</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40361</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40362</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40363</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>抓包数据</p>
+<div><img src="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpdumpAcceptOnce.png" alt="阻塞于accept()一次" title="阻塞于accept()一次" width="500" hegiht="300"></div>
+
+</li>
+</ol>
+<ul>
+<li>数据分析<br>&emsp;&emsp;在实际的实验过程中，对于<code>Client</code>而言，其状态与阻塞在<code>listen()</code>时，保持一致，为<span style="background-color:#f1c40f">ESTABLISHED</span>状态。<br>&emsp;&emsp;但是，对于<code>Server</code>而言，相比于阻塞在<code>listen()</code>时，有四个套接字（端口分别为：<code>40358</code>,<code>40359</code>,<code>40360</code>,<code>40361</code>）处于<span style="background-color:#f1c40f">ESTABLISHED</span>状态，剩余两个则仍处于<span style="background-color:#f1c40f">SYN_RECV</span>。结合相应的抓包数据，所有的连接都完成了Tcp三次握手的连接过程，由于我们调用了一次<code>accept()</code>，因此，相较于阻塞在<code>listen()</code>时（有3个套接字成功建立）,对于<code>Server</code>端而言，一共有4个套接字处于<span style="background-color:#f1c40f">ESTABLISHED</span>状态，而这也与前文所述的<a href="#Way2">方式2</a>一致。<br>&emsp;&emsp;因此在该阶段，<code>Client</code>都处于<span style="background-color:#f1c40f">ESTABLISHED</span>阶段，<code>Server</code>则有<code>backlog + 1 + 1（成功调用了一次accept()）</code>数量的连接处于<span style="background-color:#f1c40f">ESTABLISHED</span>，剩余则是处于<span style="background-color:#f1c40f">SYN_RECV</span>状态。  </li>
+</ul>
+<h4 id="Pending_on_accept_times">5. Server阻塞于accept()多次</h4>  
+</li>
+<li><p>实验数据  </p>
+<ol>
+<li><p>客户端输出  </p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[root@litost Client]# ./Client </span><br><span class="line">nConnFd : <span class="number">3</span></span><br><span class="line">nConnFd : <span class="number">4</span></span><br><span class="line">nConnFd : <span class="number">5</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">4</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">5</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">3</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">nConnFd : <span class="number">6</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">6</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">nConnFd : <span class="number">7</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">7</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">nConnFd : <span class="number">8</span></span><br><span class="line">Connect succeed!</span><br><span class="line">strStream is [[<span class="number">8</span>]Send Message]</span><br><span class="line">[nConnFd] Send succeed!</span><br><span class="line">^C</span><br><span class="line">[root@litost Client]#</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>服务器端输出</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">[root@litost Server]# ./Server </span><br><span class="line">Please input the Cmd: </span><br><span class="line">        [<span class="number">0</span>]: [socket]</span><br><span class="line">        [<span class="number">1</span>]: [bind]</span><br><span class="line">        [<span class="number">2</span>]: [listen]</span><br><span class="line">        [<span class="number">3</span>]: [accept_once]</span><br><span class="line">        [<span class="number">4</span>]: [accept_times]</span><br><span class="line"><span class="number">4</span></span><br><span class="line">[tcpdump -i lo -s <span class="number">0</span> -w ./Tcpdump_accept_times.cap &amp;]</span><br><span class="line">Start:netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">tcpdump: listening on lo, link-type EN10MB (Ethernet), capture size 65535 bytes</span><br><span class="line">I have accept one Connect: [<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>], port[<span class="number">40382</span>] </span><br><span class="line">Pending on [accept_times]</span><br><span class="line">I will accept one</span><br><span class="line">I have accept one Connect: [<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>], port[<span class="number">40383</span>] </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">17777</span>               <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40386</span>             SYN_RECV    </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40387</span>             SYN_RECV    </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40382</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40383</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40384</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40385</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40382</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40383</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40384</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40385</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40386</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40387</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">I will accept one</span><br><span class="line">I have accept one Connect: [<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>], port[<span class="number">40384</span>] </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">17777</span>               <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40387</span>             SYN_RECV    </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40382</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40383</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40384</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40385</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40386</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40382</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40383</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40384</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40385</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40386</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>     <span class="number">15</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40387</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">netstat -atn | grep '17777' | sort -n -t : -k 2</span><br><span class="line">I will accept one</span><br><span class="line">I have accept one Connect: [<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>], port[<span class="number">40385</span>] </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">17777</span>               <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40382</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40383</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40384</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40385</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40386</span>             ESTABLISHED </span><br><span class="line">tcp       <span class="number">15</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40387</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40382</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40383</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40384</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40385</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40386</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">40387</span>             <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">17777</span>             ESTABLISHED</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>抓包数据  </p>
+<div><img src="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpdumpAcceptTimes.png" alt="阻塞于accept()多次" title="阻塞于accept()多次" width="500" hegiht="300"></div>
+
+</li>
+</ol>
+<ul>
+<li>数据分析<br>&emsp;&emsp;在实际的实验过程中，对于<code>Client</code>而言，其状态与阻塞在<code>listen()</code>时，保持一致，为<span style="background-color:#f1c40f">ESTABLISHED</span>状态。<br>&emsp;&emsp;对于<code>Server</code>而言，结果正如欲想的一致，在调用3次<code>accept()</code>后，所有的连接都进入了<span style="background-color:#f1c40f">ESTABLISHED</span>。<br>&emsp;&emsp;因此在该阶段，<code>Client</code>都处于<span style="background-color:#f1c40f">ESTABLISHED</span>阶段，<code>Server</code>则有<code>backlog + 1 + 3（成功调用了三次accept()后）</code>数量的连接处于<span style="background-color:#f1c40f">ESTABLISHED</span>。  </li>
+</ul>
+</li>
+</ul>
+<h3 id="Summary">4. 实验结果分析</h3>   
+
+<p>&emsp;&emsp;通过对以上分布实验的结果的分析，我认为在<a href="#IncorrectUnderstand.svg">之前</a>对于<code>linux</code>中Tcp三次握手实现的理解是错误的。正确的理解应该是如下图所示：</p>
+<div align="center"><img src="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/CorrectUnderstand.svg?sanitize=true" alt="关于Tcp三次握手实现的正确的理解" title="关于Tcp三次握手实现的正确的理解" width="700" hegiht="500"> <br>图4: 关于Tcp三次握手实现的正确的理解</div>
+
+<p>&emsp;&emsp;主要存在以下几点误区：</p>
+<ol>
+<li>在<code>Server</code>成功调用<code>listen()</code>后，相应的套接字——我们暂且将其称为<code>A</code>（<em>注：该套接字唯一作用就是用来接受连接请求</em>）,将进入被动模式，之后<code>A</code>其实就一直处于监听状态<span style="background-color:#f1c40f">LISTEN</span>。</li>
+<li><code>Client</code>调用<code>connect()</code>发起连接请求,处于监听状态的套接字<code>A</code>在收到连接请求后，首先会将其存储在前文提到的<code>SYN</code>队列，并将相应的套接字——我们将其称为<code>B</code>,设置为<span style="background-color:#f1c40f">SYN-RCVD</span>,并发送应答给<code>Client</code>。在收到<code>Client</code>后，<code>B</code>进入<span style="background-color:#f1c40f">ESTABLISHED</span>状态。但需要注意的是，此时的<code>B</code>应该仍位于<code>SYN</code>队列，只有在判断<code>accept</code>队列未满(小于<code>backlog</code> + 1)时,才会将其转移到<code>accept</code>队列。</li>
+</ol>
+<p>&emsp;&emsp;由于并未看过系统源码，以上仅是结合相应实验的到的结论，仅为个人理解，如有谬误，还望各位批评指正。此外，针对不同的系统，结果可能仍有不同。</p>
+<h2 id="ReferenceAndLinks">三、参考与链接</h2>  
+
+
+<ol>
+<li><p>深入探索 Linux listen() 函数 backlog 的含义:<a href="https://blog.csdn.net/yangbodong22011/article/details/60399728" target="_blank" rel="noopener">https://blog.csdn.net/yangbodong22011/article/details/60399728</a>  </p>
+</li>
+<li><p>How TCP backlog works in Linux:<a href="http://veithen.io/2014/01/01/how-tcp-backlog-works-in-linux.html" target="_blank" rel="noopener">http://veithen.io/2014/01/01/how-tcp-backlog-works-in-linux.html</a></p>
+</li>
+<li><p>使用TCP构建的客户端/服务器公共框架:<a href="https://github.com/0Litost0/TcpClientServerFramework" target="_blank" rel="noopener">https://github.com/0Litost0/TcpClientServerFramework</a>  </p>
+</li>
+<li><p>MakeFileTemplate:<a href="https://github.com/0Litost0/MakeFileTemplate" target="_blank" rel="noopener">https://github.com/0Litost0/MakeFileTemplate</a>  </p>
+</li>
+<li><p>netstat指令:<a href="https://www.cnblogs.com/peida/archive/2013/03/08/2949194.html" target="_blank" rel="noopener">https://www.cnblogs.com/peida/archive/2013/03/08/2949194.html</a>  </p>
+</li>
+<li><p>聊聊 tcpdump 与 Wireshark 抓包分析:<a href="https://www.jianshu.com/p/8d9accf1d2f1" target="_blank" rel="noopener">https://www.jianshu.com/p/8d9accf1d2f1</a>  </p>
+</li>
+</ol>
+<p></p><h2 id="Info">五、文档信息</h2><br>作者： Litost_Cheng  <p></p>
+<p>发表日期：2019年05月20日<br>更多内容：</p>
+<ol>
+<li><a href="https://0litost0.github.io/">Litost_Cheng的个人博客</a>  </li>
+<li><a href="https://github.com/0Litost0" target="_blank" rel="noopener">Litost_Cheng的Github</a></li>
+<li><a href="https://blog.csdn.net/litost000" target="_blank" rel="noopener">Litost_Cheng的博客</a>  </li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/14/C或C-项目的makefile模板/" rel="next" title="C或C++项目的makefile模板">
+                <i class="fa fa-chevron-left"></i> C或C++项目的makefile模板
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/04/《倾城之恋》读书笔记/" rel="prev" title="《倾城之恋》读书笔记">
+                《倾城之恋》读书笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg" alt="Litost_Cheng">
+            
+              <p class="site-author-name" itemprop="name">Litost_Cheng</p>
+              <div class="site-description motion-element" itemprop="description">Linux编程，嵌入式开发，计算机网络，C/C++</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/" title="GitHub &rarr; https://github.com/" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:1174731844@qq.com" title="E-Mail &rarr; mailto:1174731844@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Title"><span class="nav-number">1.</span> <span class="nav-text">由Linux中listen()函数谈开去</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Brief"><span class="nav-number">1.1.</span> <span class="nav-text">一、简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Introduction"><span class="nav-number">1.1.1.</span> <span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Origin"><span class="nav-number">1.1.2.</span> <span class="nav-text">2. 问题引入</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Principle"><span class="nav-number">1.2.</span> <span class="nav-text">二、原理介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tcp_Three_wayhandshake"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. Tcp三次握手</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Backlog_param"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 关于backlog参数的理解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Practice"><span class="nav-number">1.3.</span> <span class="nav-text">三、实验与分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Enviroment"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. 实验环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SourceCode"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. 例程介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Experiment"><span class="nav-number">1.3.3.</span> <span class="nav-text">3. 分步实验</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Pending_on_socket"><span class="nav-number">1.3.3.1.</span> <span class="nav-text">1. Server阻塞于socket()创建后</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Pending_on_bind"><span class="nav-number">1.3.3.2.</span> <span class="nav-text">2. Server阻塞于bind()后</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Pending_on_listen"><span class="nav-number">1.3.3.3.</span> <span class="nav-text">3. Server阻塞于listen()后</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Pending_on_accept_once"><span class="nav-number">1.3.3.4.</span> <span class="nav-text">4. Server阻塞于accept()一次后</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Pending_on_accept_times"><span class="nav-number">1.3.3.5.</span> <span class="nav-text">5. Server阻塞于accept()多次</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary"><span class="nav-number">1.3.4.</span> <span class="nav-text">4. 实验结果分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReferenceAndLinks"><span class="nav-number">1.4.</span> <span class="nav-text">三、参考与链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Info"><span class="nav-number">1.5.</span> <span class="nav-text">五、文档信息</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Litost_Cheng</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.1.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+      <div id="needsharebutton-float">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/reading_progress/reading_progress.js"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.1"></script>
+
+  <script src="/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/schemes/muse.js?v=7.1.1"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.1"></script>
+<script src="/js/post-details.js?v=7.1.1"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: '1o2ynjrIsfx2hcMNaQrHTnWF-gzGzoHsz',
+    appKey: 'Un6rXXhsAErXMpMUbSXBqkep',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+  
+  <script>
+    
+    function addCount(Counter) {
+      var $visitors = $('.leancloud_visitors');
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+
+      Counter('get', '/classes/Counter', { where: JSON.stringify({ url }) })
+        .done(function({ results }) {
+          if (results.length > 0) {
+            var counter = results[0];
+            
+            Counter('put', '/classes/Counter/' + counter.objectId, JSON.stringify({ time: { '__op': 'Increment', 'amount': 1 } }))
+            
+              .done(function() {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.time + 1);
+              })
+            
+              .fail(function ({ responseJSON }) {
+                console.log('Failed to save Visitor num, with error message: ' + responseJSON.error);
+              })
+          } else {
+            
+              Counter('post', '/classes/Counter', JSON.stringify({ title: title, url: url, time: 1 }))
+                .done(function() {
+                  var $element = $(document.getElementById(url));
+                  $element.find('.leancloud-visitors-count').text(1);
+                })
+                .fail(function() {
+                  console.log('Failed to create');
+                });
+            
+          }
+        })
+        .fail(function ({ responseJSON }) {
+          console.log('LeanCloud Counter Error: ' + responseJSON.code + ' ' + responseJSON.error);
+        });
+    }
+    
+
+    $(function() {
+      $.get('https://app-router.leancloud.cn/2/route?appId=' + 'nmxsGEb6jcXD4E2GjgCCdUa9-gzGzoHsz')
+        .done(function({ api_server }) {
+          var Counter = function(method, url, data) {
+            return $.ajax({
+              method: method,
+              url: 'https://' + api_server + '/1.1' + url,
+              headers: {
+                'X-LC-Id': 'nmxsGEb6jcXD4E2GjgCCdUa9-gzGzoHsz',
+                'X-LC-Key': '9iJ8MsrTPL2OAAapm9v1vcW4',
+                'Content-Type': 'application/json',
+              },
+              data: data
+            });
+          };
+          
+            addCount(Counter);
+          
+        });
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+  
+  
+  <script src="/lib/needsharebutton/needsharebutton.js"></script>
+  <script>
+    
+    
+      flOptions = {};
+      
+        flOptions.iconStyle = "box";
+      
+        flOptions.boxForm = "horizontal";
+      
+        flOptions.position = "middleRight";
+      
+        flOptions.networks = "Weibo,Wechat,Douban,QQZone,Twitter,Facebook";
+      
+      new needShareButton('#needsharebutton-float', flOptions);
+    
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+<script>
+  $('.highlight').not('.gist .highlight').each(function(i, e) {
+    var $wrap = $('<div>').addClass('highlight-wrap');
+    $(e).after($wrap);
+    $wrap.append($('<button>').addClass('copy-btn').append('复制').on('click', function(e) {
+      var code = $(this).parent().find('.code').find('.line').map(function(i, e) {
+        return $(e).text();
+      }).toArray().join('\n');
+      var ta = document.createElement('textarea');
+      var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+      ta.style.top = yPosition + 'px'; // Prevent page scroll
+      ta.style.position = 'absolute';
+      ta.style.opacity = '0';
+      ta.readOnly = true;
+      ta.value = code;
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, code.length);
+      ta.readOnly = false;
+      var result = document.execCommand('copy');
+      
+        if (result) $(this).text('复制成功');
+        else $(this).text('复制失败');
+      
+      ta.blur(); // For iOS
+      $(this).blur();
+    })).on('mouseleave', function(e) {
+      var $b = $(this).find('.copy-btn');
+      setTimeout(function() {
+        $b.text('复制');
+      }, 300);
+    }).append(e);
+  })
+</script>
+
+
+  
+
+  
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<link rel="stylesheet" href="/static/css/player.css">
+</head>
+
+<div id="QPlayer">
+	<div id="pContent">
+		<div id="player">
+			<span class="cover"></span>
+			<div class="ctrl">
+				<div class="musicTag marquee">
+					<strong>Title</strong>
+					 <span> - </span>
+					<span class="artist">Artist</span>
+				</div>
+				<div class="progress">
+					<div class="timer left">0:00</div>
+					<div class="contr">
+						<div class="rewind icon"></div>
+						<div class="playback icon"></div>
+						<div class="fastforward icon"></div>
+					</div>
+					<div class="right">
+						<div class="liebiao icon"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="ssBtn">
+				<div class="adf"></div>
+		</div>
+	</div>
+	<ol id="playlist"></ol>
+</div>
+<script src="//cdn.bootcss.com/jQuery.Marquee/1.3.94/jquery.marquee.min.js"></script>
+<script>
+  var playlist = [];
+  
+  playlist.push({title:'失落沮丧歌',artist:'my little airport',mp3:'http://music.163.com/song/media/outer/url?id=365841.mp3',cover:'http://p1.music.126.net/L_7A039pUl0BwMBYh4AAig==/104453604650792.jpg?param=130y130'})
+  
+  playlist.push({title:'洋子，洋子',artist:'椅子乐队',mp3:'http://music.163.com/song/media/outer/url?id=574925505.mp3',cover:'https://p2.music.126.net/WxXUfYaY5-nWKZJSPxdMZQ==/109951163380619155.jpg?param=130y130'})
+  
+  var isRotate = true;
+  var autoplay = false;
+</script>
+<script src="/static/js/player.js"></script>
+<script>
+  function bgChange(){
+	var lis= $('.lib');
+	for(var i=0; i<lis.length; i+=2)
+	lis[i].style.background = 'rgba(246, 246, 246, 0.5)';
+  }
+  window.onload = bgChange;
+</script>
+
+
+</body>
+</html>
