@@ -102,12 +102,12 @@
 
 
 
-  <meta name="description" content="由Linux中listen()函数谈开去 一、简介  1.前言  2.问题引入     二、原理介绍  1. Tcp三次握手  2. 关于backlog参数的理解    三、实验与分析  1. 实验环境  2. 例程介绍  3. 分步实验  1. Server阻塞于socket()创建后  2. Server阻塞于bind()创建后  3. Server阻塞于listen()后  4. Serv">
+  <meta name="description" content="由Linux中listen()函数谈开去     一、简介1. 前言&amp;emsp;&amp;emsp;本篇博文主要谈一谈Linux系统中，在使用socket套接字建立Tcp连接时，关于listen()函数的backlog参数的理解，同时，借由该问题，并结合具体的实践，尝试厘清Tcp连接的建立过程。&amp;emsp;&amp;emsp;本篇博客编写主要参考借鉴了以下两篇博文，并在其基础上，加入了个人的一些思考与探索。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="由Linux中listen()函数谈开去">
 <meta property="og:url" content="https://0litost0.github.io/2019/05/20/由Linux中listen()函数谈开去/index.html">
 <meta property="og:site_name" content="力托斯特的博客">
-<meta property="og:description" content="由Linux中listen()函数谈开去 一、简介  1.前言  2.问题引入     二、原理介绍  1. Tcp三次握手  2. 关于backlog参数的理解    三、实验与分析  1. 实验环境  2. 例程介绍  3. 分步实验  1. Server阻塞于socket()创建后  2. Server阻塞于bind()创建后  3. Server阻塞于listen()后  4. Serv">
+<meta property="og:description" content="由Linux中listen()函数谈开去     一、简介1. 前言&amp;emsp;&amp;emsp;本篇博文主要谈一谈Linux系统中，在使用socket套接字建立Tcp连接时，关于listen()函数的backlog参数的理解，同时，借由该问题，并结合具体的实践，尝试厘清Tcp连接的建立过程。&amp;emsp;&amp;emsp;本篇博客编写主要参考借鉴了以下两篇博文，并在其基础上，加入了个人的一些思考与探索。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/Connect.svg?sanitize=true">
 <meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpThreeHandShake.svg?sanitize=true">
@@ -118,10 +118,10 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpdumpAcceptOnce.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/TcpdumpAcceptTimes.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/CorrectUnderstand.svg?sanitize=true">
-<meta property="og:updated_time" content="2019-06-08T04:51:10.158Z">
+<meta property="og:updated_time" content="2019-06-08T11:27:53.465Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="由Linux中listen()函数谈开去">
-<meta name="twitter:description" content="由Linux中listen()函数谈开去 一、简介  1.前言  2.问题引入     二、原理介绍  1. Tcp三次握手  2. 关于backlog参数的理解    三、实验与分析  1. 实验环境  2. 例程介绍  3. 分步实验  1. Server阻塞于socket()创建后  2. Server阻塞于bind()创建后  3. Server阻塞于listen()后  4. Serv">
+<meta name="twitter:description" content="由Linux中listen()函数谈开去     一、简介1. 前言&amp;emsp;&amp;emsp;本篇博文主要谈一谈Linux系统中，在使用socket套接字建立Tcp连接时，关于listen()函数的backlog参数的理解，同时，借由该问题，并结合具体的实践，尝试厘清Tcp连接的建立过程。&amp;emsp;&amp;emsp;本篇博客编写主要参考借鉴了以下两篇博文，并在其基础上，加入了个人的一些思考与探索。">
 <meta name="twitter:image" content="https://raw.githubusercontent.com/0Litost0/Tcp_three-way_handshake_Blog/master/Doc/Pic/Connect.svg?sanitize=true">
 
 
@@ -418,7 +418,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-08 12:51:10" itemprop="dateModified" datetime="2019-06-08T12:51:10+08:00">2019-06-08</time>
+                <time title="修改时间：2019-06-08 19:27:53" itemprop="dateModified" datetime="2019-06-08T19:27:53+08:00">2019-06-08</time>
               
             
           </span>
@@ -501,38 +501,29 @@
       
 
       
-        <ul>
-<li><a href="#Title">由Linux中listen()函数谈开去</a></li>
-<li><p><a href="#Brief">一、简介</a></p>
-<ul>
-<li><a href="#Introduction">1.前言</a> </li>
-<li><a href="#Origin">2.问题引入</a> </li>
-</ul>
-</li>
-<li><p><a href="#Principle"> 二、原理介绍</a></p>
-<ul>
-<li><a href="#Tcp_Three_wayhandshake">1. Tcp三次握手</a> </li>
-<li><a href="#Backlog_param">2. 关于backlog参数的理解</a> </li>
-</ul>
-</li>
-<li><p><a href="#Practice">三、实验与分析</a></p>
-<ul>
-<li><a href="#Enviroment">1. 实验环境</a> </li>
-<li><a href="#SourceCode">2. 例程介绍</a> </li>
-<li><a href="#Experiment">3. 分步实验</a> <ul>
-<li><a href="#Pending_on_socket">1. Server阻塞于socket()创建后</a> </li>
-<li><a href="#Pending_on_bind">2. Server阻塞于bind()创建后</a> </li>
-<li><a href="#Pending_on_listen">3. Server阻塞于listen()后</a> </li>
-<li><a href="#Pending_on_accept_once">4. Server阻塞于accept()一次后</a> </li>
-<li><a href="#Pending_on_accept_times">5. Server阻塞于accept()多次</a> </li>
-</ul>
-</li>
-<li><a href="#Summary">4. 实验结果分析</a> </li>
-</ul>
-</li>
-<li><a href="#ReferenceAndLinks">四、参考与链接</a></li>
-<li><a href="#Info">五、文档信息</a></li>
-</ul>
+        <!-- 
+* [由Linux中listen()函数谈开去](#Title)
+* [一、简介](#Brief)
+    * [1.前言](#Introduction) 
+    * [2.问题引入](#Origin) 
+
+* [ 二、原理介绍](#Principle)
+    * [1. Tcp三次握手](#Tcp_Three_wayhandshake) 
+    * [2. 关于backlog参数的理解](#Backlog_param) 
+
+* [三、实验与分析](#Practice)
+    * [1. 实验环境](#Enviroment) 
+    * [2. 例程介绍](#SourceCode) 
+    * [3. 分步实验](#Experiment) 
+        * [1. Server阻塞于socket()创建后](#Pending_on_socket) 
+        * [2. Server阻塞于bind()创建后](#Pending_on_bind) 
+        * [3. Server阻塞于listen()后](#Pending_on_listen) 
+        * [4. Server阻塞于accept()一次后](#Pending_on_accept_once) 
+        * [5. Server阻塞于accept()多次](#Pending_on_accept_times) 
+    * [4. 实验结果分析](#Summary) 
+* [四、参考与链接](#ReferenceAndLinks)
+* [五、文档信息](#Info)
+-->
 <h1 id="Title">由Linux中listen()函数谈开去</h1>  
 
 
