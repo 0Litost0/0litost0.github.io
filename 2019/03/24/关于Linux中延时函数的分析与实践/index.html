@@ -109,7 +109,7 @@
 <meta property="og:site_name" content="力托斯特的博客">
 <meta property="og:description" content="关于Linux中延时函数的分析与实践 一、简介    &amp;emsp;&amp;emsp;在实际的工程实践中，面对需要程序短暂休眠的情况，我们通常想到的可能是sleep(),usleep(),nanosleep()等函数。但是，在最近阅读代码的过程中，经常会看到使用select()达到延时的目的。本着追根求源（钻牛角尖）的原则，本篇博文，旨在通过具体的实验以及原理分析，从而找出在linux中，关于程序休眠的">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-06-18T12:38:34.653Z">
+<meta property="og:updated_time" content="2019-06-18T12:41:17.284Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="关于Linux中延时函数的分析与实践">
 <meta name="twitter:description" content="关于Linux中延时函数的分析与实践 一、简介    &amp;emsp;&amp;emsp;在实际的工程实践中，面对需要程序短暂休眠的情况，我们通常想到的可能是sleep(),usleep(),nanosleep()等函数。但是，在最近阅读代码的过程中，经常会看到使用select()达到延时的目的。本着追根求源（钻牛角尖）的原则，本篇博文，旨在通过具体的实验以及原理分析，从而找出在linux中，关于程序休眠的">
@@ -408,7 +408,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-18 20:38:34" itemprop="dateModified" datetime="2019-06-18T20:38:34+08:00">2019-06-18</time>
+                <time title="修改时间：2019-06-18 20:41:17" itemprop="dateModified" datetime="2019-06-18T20:41:17+08:00">2019-06-18</time>
               
             
           </span>
@@ -537,7 +537,7 @@
 <li>延时时间为微秒级时  </li>
 </ul>
 <p>&emsp;&emsp;在<span style="background-color:#f1c40f">时间粒度</span>相对较大的情况下,<code>select()</code>的表现优于以及<code>nanosleep()</code>，但随着延时时间的进一步缩小，,<code>select()</code>的精确度，越来越差。而<code>nanosleep()</code>则表现的较为稳定。 </p>
-<p>&emsp;&emsp;综上所述:<span style="background-color:#f1c40f">用<code>select()</code>来实现微秒级以上的延时，是一种最佳选择</span></p>
+<p>&emsp;&emsp;综上所述:<span style="background-color:#f1c40f">用 select() 来实现微秒级以上的延时，是一种最佳选择</span></p>
 <h2 id="三、Theory">三、实现原理</h2><br>…<br><br><h2 id="四、ReferenceAndLink">四、参考与链接</h2>   
 
 <ol>
