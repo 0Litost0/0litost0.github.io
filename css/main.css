@@ -1841,7 +1841,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #ffbe17;
+  background: #3eaf75;
 }
 .feed-link,
 .chat {
@@ -2631,4 +2631,10 @@ blockquote p {
 }
 img {
   margin: 0 auto;
+}
+code {
+  color: #c7254e;
+}
+a {
+  color: #4ea1db;
 }

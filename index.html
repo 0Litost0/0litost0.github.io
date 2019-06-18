@@ -346,6 +346,224 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://0litost0.github.io/2019/06/18/浅谈C和C-中的资源释放/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Litost_Cheng">
+      <meta itemprop="description" content="Linux编程，嵌入式开发，计算机网络，C/C++">
+      <meta itemprop="image" content="https://tva3.sinaimg.cn/crop.0.0.180.180.180/8d442206jw1e8qgp5bmzyj2050050aa8.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="力托斯特的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/06/18/浅谈C和C-中的资源释放/" class="post-title-link" itemprop="url">浅谈C和C++中的资源释放</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-18 10:09:39 / 修改时间：20:33:52" itemprop="dateCreated datePublished" datetime="2019-06-18T10:09:39+08:00">2019-06-18</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/" itemprop="url" rel="index"><span itemprop="name">软件编程</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/软件编程/经验总结/" itemprop="url" rel="index"><span itemprop="name">经验总结</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2019/06/18/浅谈C和C-中的资源释放/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/06/18/浅谈C和C-中的资源释放/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/2019/06/18/浅谈C和C-中的资源释放/" class="leancloud_visitors" data-flag-title="浅谈C和C++中的资源释放">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <!--
+* [浅谈C和C++中的资源释放](#Title)
+* [一、简介](#Brief)
+* [二、实现资源释放的有效途径](#Solution)
+    * [1. C实现资源释放的有效途径](#C_Solution)
+        * [(1) 巧用 do{}while{0} ](#DoWhile)
+        * [(2) goto 语句实现资源回收 ](#GoTo)       
+    * [2. C++实现资源释放的有效途径](#CPP_Solution)
+        * [(1) RAII——资源获取即初始化](#Raii)
+        * [(2) 智能指针](#SharedPtr)
+* [三、总结与反思](#Summary)
+    * [1. 总结](#_Summary)
+    * [2. 关于关于程序员扮演角色的反思](#_Think)
+* [四、参考与链接](#ReferenceAndLinks)
+* [五、文档信息](#Info)
+-->
+<p></p><h1 id="Title">浅谈C和C++中的资源释放</h1><p></p>
+<h2 id="Brief">一、简介</h2>  
+
+<p>&emsp;&emsp;本文主要探究在<code>C/C++</code>中关于资源释放的有效途径。  </p>
+<p>&emsp;&emsp;作为一名程序员，本人的日常工作主要涉及<code>Linux</code>平台下的嵌入式软件开发。在实际的开发过程中，经常困扰我的一件事就是如何实现资源(<em>应该对资源有一个界定</em>)的有效回收，避免内存泄漏，从而保证程序的稳定性。<br>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/06/18/浅谈C和C-中的资源释放/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </p></div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://0litost0.github.io/2019/06/04/《人间失格》读书笔记/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -408,7 +626,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-08 19:02:23" itemprop="dateModified" datetime="2019-06-08T19:02:23+08:00">2019-06-08</time>
+                <time title="修改时间：2019-06-18 20:28:24" itemprop="dateModified" datetime="2019-06-18T20:28:24+08:00">2019-06-18</time>
               
             
           </span>
@@ -2159,7 +2377,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-count">9</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
